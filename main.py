@@ -12,11 +12,20 @@ def main():
   parameters = readParameters()
 
   menuEntry = showMenu(parameters.menu)
-  shortMessage = getShortMessage(menuEntry, underscores=parameters.maxLength)
+
+  shortMessage = getShortMessage(menuEntry,
+                                 underscores=parameters.maxLength)
+
   longMessage = getInput("Longer description: ")
+
   issueCode = getInput("Issue code: ")
+
   breakingChange = getInput("Breaking change: ")
-  commitMessage = buildCommitMessage(shortMessage, longMessage, issueCode, breakingChange)
+
+  commitMessage = buildCommitMessage(shortMessage,
+                                     longMessage,
+                                     issueCode,
+                                     breakingChange)
 
   commit(commitMessage)
 

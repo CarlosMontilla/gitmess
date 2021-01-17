@@ -19,8 +19,6 @@ def main():
 
   commitMessage = buildCommitMessage(shortMessage, longMessage, issueCode, breakingChange)
 
-  print(commitMessage)
-
   commit(commitMessage)
 
 def readParameters():

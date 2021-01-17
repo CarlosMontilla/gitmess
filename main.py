@@ -39,15 +39,15 @@ def readParameters():
   """
   params = {}
   params['maxLength'] = 80
-  params['menu'] = [("feat", "A new feature"),
-                    ("fix", "A bug fix"),
+  params['menu'] = [("feat", "New feature"),
+                    ("fix", "Bug fix"),
                     ("chore", "Build process or auxiliary tool change"),
                     ("docs", "Documentary only changes"),
-                    ("refactor", "A code that neither changes or add a feature"),
+                    ("refactor", "Code that neither changes or add a feature"),
                     ("style", "Markup, white-space, formatting..."),
-                    ("perf", "A code change that improves performance"),
+                    ("perf", "Code change that improves performance"),
                     ("test", "Adding tests"),
-                    ("release", "A new release version")]
+                    ("release", "Release version")]
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 

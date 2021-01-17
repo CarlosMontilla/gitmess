@@ -51,8 +51,8 @@ def readParameters():
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 
-
   return tupleConstructor(**params)
+
 
 def showMenu(menu):
 
@@ -60,9 +60,8 @@ def showMenu(menu):
 
   questions = [
   inquirer.Checkbox('type',
-                message="Select the type of change you are committing?",
-                choices=menuQuestions,
-                ),
+                    message="Select the type of change you are committing?",
+                    choices=menuQuestions)
   ]
 
   choices = inquirer.prompt(questions)['type']
@@ -71,6 +70,8 @@ def showMenu(menu):
     raise RuntimeError("Please choice a type")
 
   return ','.join(choices)
+
+
 
 def getChar():
   fd = sys.stdin.fileno()

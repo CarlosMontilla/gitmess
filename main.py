@@ -21,7 +21,14 @@ def main():
 
   commit(commitMessage)
 
+  return 0
+
+
+## ----------------------------------------------------------------------------
 def readParameters():
+  """
+  Read the parameters configuration file in current project
+  """
   params = {}
   params['maxLength'] = 80
   params['menu'] = [("feat", "A new feature"),

@@ -92,7 +92,6 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking):
   if breaking:
     cm += "\n\n" + "BREAKING CHANGE: " + breaking
 
-  print(cm)
   return cm
 
 def getShortMessage(prefix="", underscores=20, blankChar='_'):

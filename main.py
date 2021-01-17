@@ -51,6 +51,10 @@ def showMenu(menu):
   ]
 
   choices = inquirer.prompt(questions)['type']
+
+  if len(choices) == 0:
+    raise RuntimeError("Please choice a type")
+
   return ','.join(choices)
 
 def unixGetCh():

@@ -13,10 +13,9 @@ def main():
 
   menuEntry = showMenu(parameters.menu)
   shortMessage = getShortMessage(menuEntry, underscores=parameters.maxLength)
-  longMessage = getLongMessage()
-  issueCode = getIssue()
-  breakingChange = getBreakingChange()
-
+  longMessage = getInput("Longer description: ")
+  issueCode = getInput("Issue code: ")
+  breakingChange = getInput("Breaking change: ")
   commitMessage = buildCommitMessage(shortMessage, longMessage, issueCode, breakingChange)
 
   commit(commitMessage)
@@ -64,28 +63,18 @@ def showMenu(menu):
 
   return ','.join(choices)
 
-def unixGetCh():
-    def _getch():
-        fd = sys.stdin.fileno()
-        oldSettings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(fd)
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, oldSettings)
-        return ch
-    return _getch()
+def getChar():
+  fd = sys.stdin.fileno()
+  oldSettings = termios.tcgetattr(fd)
+  try:
+    tty.setraw(fd)
+    ch = sys.stdin.read(1)
+  finally:
+    termios.tcsetattr(fd, termios.TCSADRAIN, oldSettings)
+  return ch
 
-def getLongMessage():
-  print("Long message:")
-  return input()
-
-def getIssue():
-  print("Issue code:")
-  return input()
-
-def getBreakingChange():
-  print("Breaking change?:")
+def getInput(question):
+  print(question)
   return input()
 
 def buildCommitMessage(shortMessage, longMessage, issue, breaking):
@@ -111,19 +100,13 @@ def getShortMessage(prefix="", underscores=20, blankChar='_'):
 
     word = ""
 
-    try:
-        import msvcrt
-        func = msvcrt.getch
-    except:
-        func = unixGetCh
-
     print(prefix + (underscores - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
     # Reprint prefix to move cursor
     print(prefix, end="", flush=True)
 
     escapeNext = 0
     while True:
-        ch = func()
+        ch = getChar()
         ch = ch.encode("UTF-8")
         if ch in b'\x08\x7f':
             # Remove character if backspace

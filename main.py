@@ -73,15 +73,6 @@ def showMenu(menu):
 
 
 
-def getChar():
-  fd = sys.stdin.fileno()
-  oldSettings = termios.tcgetattr(fd)
-  try:
-    tty.setraw(fd)
-    ch = sys.stdin.read(1)
-  finally:
-    termios.tcsetattr(fd, termios.TCSADRAIN, oldSettings)
-  return ch
 
 def getInput(question):
   print(question)
@@ -103,6 +94,20 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking):
     cm += "\n\n" + "BREAKING CHANGE: " + breaking
 
   return cm
+
+
+
+def getChar():
+  fd = sys.stdin.fileno()
+  oldSettings = termios.tcgetattr(fd)
+  try:
+    tty.setraw(fd)
+    ch = sys.stdin.read(1)
+  finally:
+    termios.tcsetattr(fd, termios.TCSADRAIN, oldSettings)
+  return ch
+
+
 
 def getShortMessage(prefix="", underscores=20, blankChar='_'):
 

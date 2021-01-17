@@ -122,36 +122,33 @@ def getShortMessage(prefix="", underscores=20, blankChar='_'):
     escapeNext = 0
     while True:
         ch = getChar()
-        ch = ch.encode("UTF-8")
-        if ch in b'\x08\x7f':
+        chUTF8 = ch.encode("UTF-8")
+        ch = str(ch)
+
+        if escapeNext > 0:
+          escapeNext -= 1
+          continue
+        if chUTF8 in b'\x08\x7f':
             # Remove character if backspace
             word = word[:-1]
-        elif ch in b'\r':
+        elif chUTF8 in b'\r':
             # break if enter pressed
             break
-        else:
-            if len(word) + len(prefix) == underscores:
-                continue
-            try:
-                char = str(ch.decode("utf-8"))
-            except:
-                continue
+        elif ord(ch) == 27:
+          escapeNext = 2
+        elif ord(ch) == 3:
+          raise KeyboardInterrupt
+        elif len(word) + len(prefix) == underscores:
+          continue
+        elif ord(ch) > 30:
+          word += ch
 
-            if escapeNext > 0:
-                escapeNext -= 1
-                continue
-            elif ord(char) > 30:
-                word += str(char)
-            elif ord(char) == 27:
-                escapeNext = 2;
-            elif ord(char) == 3:
-              word = ""
-              raise KeyboardInterrupt
         # Print `\r` to return to start of line and then print prefix, word and underscores.
         print('\r' + prefix + word + (underscores - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
         # Reprint prefix and word to move cursor
         print(prefix + word, end="", flush=True)
     print()
+
     return prefix + word
 
 

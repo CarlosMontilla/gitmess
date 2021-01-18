@@ -71,6 +71,19 @@ def readParameters():
 
 
 def showMenu(menu):
+  """
+
+  Shows the menu checkbox list to choose the commit type
+
+  A menu checkbox list is built and prompted from the menu attribute of the
+  parameters.
+
+  The function returns a string with the commit types separated by a comma (if
+  there are multiple)
+
+  If no type is chosen the method raises a RuntimeError
+
+  """
 
   menuQuestions = [ (label + ":" + text, label) for (label, text) in menu ]
 

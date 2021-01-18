@@ -160,6 +160,23 @@ def getChar():
 
 
 def getShortMessage(prefix="", underscores=20, blankChar='_'):
+  """
+
+  Builds the prompt for the short message
+
+  This function shows the user a prompt line where he/she can type a message,
+  but imposing a maximum number of characters. The message is composed by a
+  prefix, followed by a colon and a space, followed by the user's input. The
+  remaining characters left are shown by a blankChar (which defaults to '_').
+  If the user tries to go above the maximum number of characters, their input
+  is just ignored.
+
+  This method accepts backspace for deleting characters, but it does not read
+  the keyboard arrows to move the cursor.
+
+  This method returns the prefix + colon + space + the user's input
+
+  """
 
   prefix += ": "
 

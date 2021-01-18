@@ -95,6 +95,9 @@ def showMenu(menu):
 
   menuQuestions = [ (label + ":" + text, label) for (label, text) in menu ]
 
+  menuMessage = "Select the type(s) of change you are committing \n" +\
+                "Press SPACE to select"
+
   questions = [
   inquirer.Checkbox('type',
                     message="Select the type(s) of change you are committing?",

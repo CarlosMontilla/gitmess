@@ -93,7 +93,7 @@ def showMenu(menu):
 
   """
 
-  menuQuestions = [ (label + ":" + text, label) for (label, text) in menu ]
+  menuQuestions = [ (label + ": " + text, label) for (label, text) in menu ]
 
   menuMessage = "Select the type(s) of change you are committing " + \
     "(Press SPACE to select)"

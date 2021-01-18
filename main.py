@@ -135,7 +135,8 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
   cm = shortMessage
 
   if longMessage:
-    cm += '\n\n' +  '\n'.join(textwrap.wrap(longMessage, width=params.wrapLength))
+    cm += '\n\n' +  '\n'.join(textwrap.wrap(longMessage,
+                                            width=params.wrapLength))
 
   if issue:
     cm += "\n\n" + 'Issue: ' + issue
@@ -186,12 +187,15 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
   """
 
   prefix += ": "
+  lp = len(prefix)
 
   word = ""
 
-  print(prefix + (length - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
+  printnow = lambda message="", end="\n": print(message, end=end, flush=True)
+
+  printnow(prefix + (length - len(word) - lp) * blankChar, end='\r')
   # Reprint prefix to move cursor
-  print(prefix, end="", flush=True)
+  printnow(prefix, end="")
 
   escapeNext = 0
   while True:
@@ -212,17 +216,18 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
       escapeNext = 2
     elif ord(ch) == 3:
       raise KeyboardInterrupt
-    elif len(word) + len(prefix) == length:
+    elif len(word) + lp == length:
       continue
     elif ord(ch) > 30:
       word += ch
 
-    # Print `\r` to return to start of line and then print prefix, word and blankChar.
-    print('\r' + prefix + word + (length - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
+    # Print line once
+    printnow('\r', end='')
+    printnow(prefix + word + (length - len(word) - lp) * blankChar, end='\r')
     # Reprint prefix and word to move cursor
-    print(prefix + word, end="", flush=True)
+    printnow(prefix + word, end="")
 
-  print()
+  printnow()
   return prefix + word
 
 

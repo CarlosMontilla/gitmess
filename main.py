@@ -220,6 +220,12 @@ def getShortMessage(prefix="", underscores=20, blankChar='_'):
 
 
 def commit(message):
+  """
+
+  Runs git to commit staged files with a given message
+
+  """
+
   subprocess.run(["git", "commit", "--message", message])
 
 if __name__ == "__main__":

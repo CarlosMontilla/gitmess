@@ -58,7 +58,7 @@ def readParameters():
   params = {}
 
   params['maxLength'] = 80
-  params['wrapLengh'] = 80
+  params['wrapLength'] = 80
   params['blankChar'] = '_'
 
   params['menu'] = [("feat", "New feature"),
@@ -120,7 +120,7 @@ def getInput(question):
   print(question)
   return input()
 
-def buildCommitMessage(shortMessage, longMessage, issue, breaking):
+def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
   """
 
   Builds the final commit message based on all the user inputs.
@@ -133,7 +133,7 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking):
   cm = shortMessage
 
   if longMessage:
-    cm += '\n\n' +  '\n'.join(textwrap.wrap(longMessage, width=80))
+    cm += '\n\n' +  '\n'.join(textwrap.wrap(longMessage, width=params.wrapLength))
 
   if issue:
     cm += "\n\n" + 'Issue: ' + issue

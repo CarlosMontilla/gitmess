@@ -39,9 +39,7 @@ def main():
 ## ----------------------------------------------------------------------------
 
 def somethingToCommit():
-  ##TODO Change
-  exitCode = subprocess.call(["git diff --cached --quiet"], shell=True)
-  return exitCode == 1
+  return subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode == 1
 
 def readParameters():
   """
@@ -163,8 +161,7 @@ def getShortMessage(prefix="", underscores=20, blankChar='_'):
 
 
 def commit(message):
-  ##TODO change
-  subprocess.call(['git commit --message \"' + message + '\"'], shell=True)
+  subprocess.run(["git", "commit", "--message", "\"" + message + "\""])
 
 if __name__ == "__main__":
   main()

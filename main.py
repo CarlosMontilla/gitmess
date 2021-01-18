@@ -39,6 +39,7 @@ def main():
 ## ----------------------------------------------------------------------------
 
 def somethingToCommit():
+  ##TODO Change
   exitCode = subprocess.call(["git diff --cached --quiet"], shell=True)
   return exitCode == 1
 

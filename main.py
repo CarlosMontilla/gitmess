@@ -44,6 +44,14 @@ def somethingToCommit():
 def readParameters():
   """
   Read the parameters configuration file in current project
+
+  This function will read the .gitmess file located in the root folder of the
+  git project and use it to set up the commit message style.
+
+  If not file is presented then default values are used
+
+  Returns all the parameters in a namedtuple structure
+
   """
   params = {}
   params['maxLength'] = 80

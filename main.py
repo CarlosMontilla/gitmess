@@ -18,7 +18,8 @@ def main():
   menuEntry = showMenu(parameters.menu)
 
   shortMessage = getShortMessage(menuEntry,
-                                 underscores=parameters.maxLength)
+                                 length=parameters.maxLength,
+                                 blankChar=parameters.blankChar)
 
   longMessage = getInput("Longer description: ")
 
@@ -29,7 +30,8 @@ def main():
   commitMessage = buildCommitMessage(shortMessage,
                                      longMessage,
                                      issueCode,
-                                     breakingChange)
+                                     breakingChange,
+                                     parameters)
 
   commit(commitMessage)
 
@@ -164,7 +166,7 @@ def getChar():
 
 
 
-def getShortMessage(prefix="", underscores=20, blankChar='_'):
+def getShortMessage(prefix="", length=80, blankChar='_'):
   """
 
   Builds the prompt for the short message
@@ -187,7 +189,7 @@ def getShortMessage(prefix="", underscores=20, blankChar='_'):
 
   word = ""
 
-  print(prefix + (underscores - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
+  print(prefix + (length - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
   # Reprint prefix to move cursor
   print(prefix, end="", flush=True)
 
@@ -210,13 +212,13 @@ def getShortMessage(prefix="", underscores=20, blankChar='_'):
       escapeNext = 2
     elif ord(ch) == 3:
       raise KeyboardInterrupt
-    elif len(word) + len(prefix) == underscores:
+    elif len(word) + len(prefix) == length:
       continue
     elif ord(ch) > 30:
       word += ch
 
-    # Print `\r` to return to start of line and then print prefix, word and underscores.
-    print('\r' + prefix + word + (underscores - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
+    # Print `\r` to return to start of line and then print prefix, word and blankChar.
+    print('\r' + prefix + word + (length - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
     # Reprint prefix and word to move cursor
     print(prefix + word, end="", flush=True)
 

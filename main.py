@@ -116,7 +116,13 @@ def getInput(question):
   return input()
 
 def buildCommitMessage(shortMessage, longMessage, issue, breaking):
+  """
 
+  Builds the final commit message based on all the user inputs.
+
+  Returns a string with the final commit message to be used
+
+  """
   cm = ""
 
   cm = shortMessage

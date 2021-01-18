@@ -161,7 +161,7 @@ def getShortMessage(prefix="", underscores=20, blankChar='_'):
 
 
 def commit(message):
-  subprocess.run(["git", "commit", "--message", "\"" + message + "\""])
+  subprocess.run(["git", "commit", "--message", message])
 
 if __name__ == "__main__":
   main()

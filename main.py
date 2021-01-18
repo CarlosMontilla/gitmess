@@ -43,6 +43,7 @@ def somethingToCommit():
 
 def readParameters():
   """
+
   Read the parameters configuration file in current project
 
   This function will read the .gitmess file located in the root folder of the
@@ -104,6 +105,13 @@ def showMenu(menu):
 
 
 def getInput(question):
+  """
+
+  Prompt a question and reads the input of the user
+
+  Returns a string with the input typed by the user
+
+  """
   print(question)
   return input()
 

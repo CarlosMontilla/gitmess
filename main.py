@@ -54,8 +54,13 @@ def readParameters():
   Returns all the parameters in a namedtuple structure
 
   """
+
   params = {}
+
   params['maxLength'] = 80
+  params['wrapLengh'] = 80
+  params['blankChar'] = '_'
+
   params['menu'] = [("feat", "New feature"),
                     ("fix", "Bug fix"),
                     ("chore", "Build process or auxiliary tool change"),

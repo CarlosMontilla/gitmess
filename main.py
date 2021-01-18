@@ -89,7 +89,7 @@ def showMenu(menu):
 
   questions = [
   inquirer.Checkbox('type',
-                    message="Select the type of change you are committing?",
+                    message="Select the type(s) of change you are committing?",
                     choices=menuQuestions)
   ]
 

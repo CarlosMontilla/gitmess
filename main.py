@@ -141,6 +141,13 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking):
 
 
 def getChar():
+  """
+
+  Reads a character typed in the keyboard
+
+  This function read a single character pressed by the user and returns it
+
+  """
   fd = sys.stdin.fileno()
   oldSettings = termios.tcgetattr(fd)
   try:
@@ -154,45 +161,45 @@ def getChar():
 
 def getShortMessage(prefix="", underscores=20, blankChar='_'):
 
-    prefix += ": "
+  prefix += ": "
 
-    word = ""
+  word = ""
 
-    print(prefix + (underscores - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
-    # Reprint prefix to move cursor
-    print(prefix, end="", flush=True)
+  print(prefix + (underscores - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
+  # Reprint prefix to move cursor
+  print(prefix, end="", flush=True)
 
-    escapeNext = 0
-    while True:
-        ch = getChar()
-        chUTF8 = ch.encode("UTF-8")
-        ch = str(ch)
+  escapeNext = 0
+  while True:
+    ch = getChar()
+    chUTF8 = ch.encode("UTF-8")
+    ch = str(ch)
 
-        if escapeNext > 0:
-          escapeNext -= 1
-          continue
-        if chUTF8 in b'\x08\x7f':
-            # Remove character if backspace
-            word = word[:-1]
-        elif chUTF8 in b'\r':
-            # break if enter pressed
-            break
-        elif ord(ch) == 27:
-          escapeNext = 2
-        elif ord(ch) == 3:
-          raise KeyboardInterrupt
-        elif len(word) + len(prefix) == underscores:
-          continue
-        elif ord(ch) > 30:
-          word += ch
+    if escapeNext > 0:
+      escapeNext -= 1
+      continue
+    elif chUTF8 in b'\x08\x7f':
+      # Remove character if backspace
+      word = word[:-1]
+    elif chUTF8 in b'\r':
+      # break if enter pressed
+      break
+    elif ord(ch) == 27:
+      escapeNext = 2
+    elif ord(ch) == 3:
+      raise KeyboardInterrupt
+    elif len(word) + len(prefix) == underscores:
+      continue
+    elif ord(ch) > 30:
+      word += ch
 
-        # Print `\r` to return to start of line and then print prefix, word and underscores.
-        print('\r' + prefix + word + (underscores - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
-        # Reprint prefix and word to move cursor
-        print(prefix + word, end="", flush=True)
-    print()
+    # Print `\r` to return to start of line and then print prefix, word and underscores.
+    print('\r' + prefix + word + (underscores - len(word) - len(prefix)) * blankChar, end='\r', flush=True)
+    # Reprint prefix and word to move cursor
+    print(prefix + word, end="", flush=True)
 
-    return prefix + word
+  print()
+  return prefix + word
 
 
 def commit(message):

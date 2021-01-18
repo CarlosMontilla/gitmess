@@ -9,6 +9,10 @@ from collections import namedtuple
 
 def main():
 
+  if not somethingToCommit():
+    print("There is nothing staged to commit")
+    return
+
   parameters = readParameters()
 
   menuEntry = showMenu(parameters.menu)
@@ -33,6 +37,11 @@ def main():
 
 
 ## ----------------------------------------------------------------------------
+
+def somethingToCommit():
+  exitCode = subprocess.call(["git diff --cached --quiet"], shell=True)
+  return exitCode == 1
+
 def readParameters():
   """
   Read the parameters configuration file in current project
@@ -153,6 +162,7 @@ def getShortMessage(prefix="", underscores=20, blankChar='_'):
 
 
 def commit(message):
+  ##TODO change
   subprocess.call(['git commit --message \"' + message + '\"'], shell=True)
 
 if __name__ == "__main__":

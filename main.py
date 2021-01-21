@@ -33,7 +33,7 @@ def main():
                                      breakingChange,
                                      parameters)
 
-  commit(commitMessage, params)
+  commit(commitMessage, parameters)
 
   return 0
 
@@ -171,7 +171,7 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
 
   if longMessage:
     cm += '\n\n' +  '\n'.join(textwrap.wrap(longMessage,
-                                            width=params.wrapLength))
+                                            width=params.WrapLength))
 
   if issue:
     cm += "\n\n" + 'Issue: ' + issue
@@ -273,17 +273,21 @@ def commit(message, params):
 
   """
 
-  if params.ComfirmCommit == "yes":
-    shouldComit = inquirer.prompt(
-    inquirer.List('confirm',
-                  message='Do you want to commit the following message?',
-                  choices=['yes', 'no'],
-                  default='no'),
-    )
-  else:
-    shouldCommit = "no"
+  if params.ConfirmCommit == "yes":
 
-  #subprocess.run(["git", "commit", "--message", message])
+    print("\n\n" + message + "\n")
+
+    shouldCommit = inquirer.prompt(
+    [inquirer.List('confirm',
+                  message='Do you want to commit with the above message?',
+                  choices=['yes', 'no'],
+                  default='no'),]
+    )['confirm']
+  else:
+    shouldCommit = "yes"
+
+  if shouldCommit == "yes":
+    subprocess.run(["git", "commit", "--message", message])
 
 if __name__ == "__main__":
   main()

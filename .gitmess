@@ -1,7 +1,5 @@
 UseDefaultMenu yes
-AddType test1 This is a test commit type
-AddType test2 This is another test commit type
 ConfrimCommit yes
-BlankChar +
+BlankChar _
 MaxLength 75
 WrapLength 80

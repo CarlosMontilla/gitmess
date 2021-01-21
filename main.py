@@ -33,7 +33,7 @@ def main():
                                      breakingChange,
                                      parameters)
 
-  commit(commitMessage)
+  commit(commitMessage, params)
 
   return 0
 
@@ -102,6 +102,7 @@ def readParameters():
   params['MaxLength'] = int(paramsFile.get("MaxLength", 80))
   params['WrapLength'] = int(paramsFile.get("WrapLength", 80))
   params['BlankChar'] = paramsFile.get("BlankChar", "_")[0]
+  params["ConfirmCommit"] = paramsFile.get("ConfirmCommit", "yes")
 
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
@@ -265,14 +266,24 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
   return prefix + word
 
 
-def commit(message):
+def commit(message, params):
   """
 
   Runs git to commit staged files with a given message
 
   """
 
-  subprocess.run(["git", "commit", "--message", message])
+  if params.ComfirmCommit == "yes":
+    shouldComit = inquirer.prompt(
+    inquirer.List('confirm',
+                  message='Do you want to commit the following message?',
+                  choices=['yes', 'no'],
+                  default='no'),
+    )
+  else:
+    shouldCommit = "no"
+
+  #subprocess.run(["git", "commit", "--message", message])
 
 if __name__ == "__main__":
   main()

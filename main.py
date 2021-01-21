@@ -18,8 +18,8 @@ def main():
   menuEntry = showMenu(parameters.menu)
 
   shortMessage = getShortMessage(menuEntry,
-                                 length=parameters.maxLength,
-                                 blankChar=parameters.blankChar)
+                                 length=parameters.MaxLength,
+                                 blankChar=parameters.BlankChar)
 
   longMessage = getInput("Longer description: ")
 
@@ -57,21 +57,52 @@ def readParameters():
 
   """
 
+  paramsFilename = ".gitmess"
+
+  paramsfid = open(paramsFilename, 'r')
+
+  paramsFile = {}
+  paramsFile["AddType"] = []
+  for line in paramsfid:
+
+    try:
+      (key, value) = line.strip('\n').split(' ', maxsplit=1)
+    except ValueError:
+      key = line.strip('\n')
+      value = ''
+
+    if key == "AddType":
+      (type, description) = value.split(' ', maxsplit=1)
+      paramsFile[key].append((type, description))
+    else:
+      paramsFile[key] = value
+
+
   params = {}
+  params['menu'] = []
 
-  params['maxLength'] = 80
-  params['wrapLength'] = 80
-  params['blankChar'] = '_'
+  if ("UseDefaultMenu" in paramsFile) and \
+     (paramsFile["UseDefaultMenu"] == "yes"):
 
-  params['menu'] = [("feat", "New feature"),
-                    ("fix", "Bug fix"),
-                    ("chore", "Build process or auxiliary tool change"),
-                    ("docs", "Documentary only changes"),
-                    ("refactor", "Code that neither changes or add a feature"),
-                    ("style", "Markup, white-space, formatting..."),
-                    ("perf", "Code change that improves performance"),
-                    ("test", "Adding tests"),
-                    ("release", "Release version")]
+
+    params['menu'] = [("feat", "New feature"),
+                      ("fix", "Bug fix"),
+                      ("chore", "Build process or auxiliary tool change"),
+                      ("docs", "Documentary only changes"),
+                      ("refactor", "Code that neither changes or add a feature"),
+                      ("style", "Markup, white-space, formatting..."),
+                      ("perf", "Code change that improves performance"),
+                      ("test", "Adding tests"),
+                      ("release", "Release version")]
+
+  params['menu'].extend(paramsFile['AddType'])
+
+
+
+  params['MaxLength'] = int(paramsFile.get("MaxLength", 80))
+  params['WrapLength'] = int(paramsFile.get("WrapLength", 80))
+  params['BlankChar'] = paramsFile.get("BlankChar", "_")[0]
+
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 

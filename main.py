@@ -62,30 +62,33 @@ def readParameters():
                                     capture_output=True).stdout.decode('utf-8')
 
 
-  paramsfid = open(gitRootDirectory.strip('\n') + "/" + paramsFilename, 'r')
-
   paramsFile = {}
   paramsFile["AddType"] = []
-  for line in paramsfid:
+  try:
+    paramsfid = open(gitRootDirectory.strip('\n') + "/" + paramsFilename, 'r')
 
-    try:
-      (key, value) = line.strip('\n').split(' ', maxsplit=1)
-    except ValueError:
-      key = line.strip('\n')
-      value = ''
+    for line in paramsfid:
 
-    if key == "AddType":
-      (type, description) = value.split(' ', maxsplit=1)
-      paramsFile[key].append((type, description))
-    else:
-      paramsFile[key] = value
+      try:
+        (key, value) = line.strip('\n').split(' ', maxsplit=1)
+      except ValueError:
+        key = line.strip('\n')
+        value = ''
 
+        if key == "AddType":
+          (type, description) = value.split(' ', maxsplit=1)
+          paramsFile[key].append((type, description))
+        else:
+          paramsFile[key] = value
+  except FileNotFoundError:
+    pass
 
   params = {}
   params['menu'] = []
 
   if ("UseDefaultMenu" in paramsFile) and \
-     (paramsFile["UseDefaultMenu"] == "yes"):
+     (paramsFile["UseDefaultMenu"] == "yes") or \
+     (not "UseDefaultMenu" in paramsFile):
 
 
     params['menu'] = [("feat", "New feature"),

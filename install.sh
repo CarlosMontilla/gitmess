@@ -9,8 +9,15 @@ PROJECTNAME=gitmess
 
 function main {
 
-  cp ./main.py "$INSTALL_DIR/$PROJECTNAME"
-  chmod a+x "$INSTALL_DIR/$PROJECTNAME"
+  if [ "$EUID" -eq 0 ]; then
+
+     cp ./main.py "$INSTALL_DIR/$PROJECTNAME"
+     chmod a+x "$INSTALL_DIR/$PROJECTNAME"
+
+  else
+    echo "Please run this script as root (or with sudo privileges)"
+  fi
+
 
 }
 

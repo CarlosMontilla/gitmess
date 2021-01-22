@@ -225,12 +225,15 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
   lp = len(prefix)
 
   word = ""
+  cursorPos = lp
+
+  messageLine = prefix + (length - len(word) - lp) * blankChar
 
   printnow = lambda message="", end="\n": print(message, end=end, flush=True)
 
-  printnow(prefix + (length - len(word) - lp) * blankChar, end='\r')
+  printnow(messageLine, end='\r')
   # Reprint prefix to move cursor
-  printnow(prefix, end="")
+  printnow(messageLine[:cursorPos], end="")
 
   escapeNext = 0
   while True:
@@ -240,7 +243,12 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
 
     if escapeNext > 0:
       escapeNext -= 1
-      continue
+      if ord(ch) == 68:
+        cursorPos =-1
+      elif (ord(ch) == 67) and (cursorPos < lp + len(word)):
+        cursorPos +=1
+      else:
+        continue
     elif chUTF8 in b'\x08\x7f':
       # Remove character if backspace
       word = word[:-1]

@@ -11,7 +11,7 @@ def main():
 
   if not somethingToCommit():
     print("There is nothing staged to commit")
-    #return
+    return
 
   parameters = readParameters()
 
@@ -238,7 +238,6 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
   escapeNext = 0
   while True:
     ch = getChar()
-    chUTF8 = ch.encode("UTF-8")
     ch = str(ch)
 
     if escapeNext > 0:
@@ -249,7 +248,7 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
         cursorPos +=1
       else:
         continue
-    elif chUTF8 in b'\x08\x7f':
+    elif ord(ch) == 127:
       # Remove character if backspace
       cursorPosWord = cursorPos - lp
 
@@ -257,7 +256,7 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
         word = word[:(cursorPosWord-1)] + word[(cursorPosWord):]
         cursorPos -= 1
 
-    elif chUTF8 in b'\r':
+    elif ord(ch) == 13:
       # break if enter pressed
       break
     elif ord(ch) == 27:

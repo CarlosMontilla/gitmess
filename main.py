@@ -58,8 +58,11 @@ def readParameters():
   """
 
   paramsFilename = ".gitmess"
+  gitRootDirectory = subprocess.run(["git", "rev-parse",  "--show-toplevel"],
+                                    capture_output=True).stdout.decode('utf-8')
 
-  paramsfid = open(paramsFilename, 'r')
+
+  paramsfid = open(gitRootDirectory.strip('\n') + "/" + paramsFilename, 'r')
 
   paramsFile = {}
   paramsFile["AddType"] = []

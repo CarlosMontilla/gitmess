@@ -6,6 +6,8 @@ set -u
 INSTALL_DIR=/usr/local/bin
 INSTALL_LIB=/usr/local/lib
 PROJECTNAME=gitmess
+MAINFILE=main.py
+GITCOMMAND=mess
 
 function main {
 
@@ -15,14 +17,15 @@ function main {
     echo -e "======================================="
     echo -e
 
-    echo -e -n "1. Installing executable as $INSTALL_DIR/$PROJECTNAME... "
+    echo -e -n "1. Installing executables in $INSTALL_DIR... "
 
     if [ -d "$INSTALL_DIR" ]; then
 
-      cp ./main.py "$INSTALL_DIR/$PROJECTNAME"
+      cp "$MAINFILE" "$INSTALL_DIR/$PROJECTNAME"
+      ln -sf "$INSTALL_DIR/$PROJECTNAME" "$INSTALL_DIR/git-$GITCOMMAND"
       if [ $? -ne 0 ]; then
         echo -e
-        echo -e "Error copying file $INSTALL_DIR/$PROJECTNAME"
+        echo -e "Error copying files $INSTALL_DIR"
         echo -e
         echo -e "Installation failed"
         exit 4

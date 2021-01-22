@@ -1,5 +1,5 @@
 UseDefaultMenu yes
-ConfrimCommit yes
+ConfirmCommit no
 BlankChar _
 MaxLength 75
 WrapLength 80

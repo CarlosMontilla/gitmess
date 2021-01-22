@@ -251,10 +251,10 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
         continue
     elif chUTF8 in b'\x08\x7f':
       # Remove character if backspace
-      cursorPosWord = cursorPos - lp - 1
+      cursorPosWord = cursorPos - lp
 
-      if cursorPosWord >= 0:
-        word = word[:cursorPosWord] + word[(cursorPosWord+1):]
+      if cursorPosWord > 0:
+        word = word[:(cursorPosWord-1)] + word[(cursorPosWord):]
         cursorPos -= 1
 
     elif chUTF8 in b'\r':
@@ -267,7 +267,8 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
     elif len(word) + lp == length:
       continue
     elif ord(ch) > 30:
-      word += ch
+      cursorPosWord = cursorPos - lp
+      word = word[:cursorPosWord] + ch + word[cursorPosWord:]
       cursorPos += 1
 
     # Print line once

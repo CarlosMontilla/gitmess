@@ -11,7 +11,7 @@ def main():
 
   if not somethingToCommit():
     print("There is nothing staged to commit")
-    return
+    #return
 
   parameters = readParameters()
 
@@ -243,15 +243,20 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
 
     if escapeNext > 0:
       escapeNext -= 1
-      if ord(ch) == 68:
-        cursorPos =-1
+      if ord(ch) == 68 and (cursorPos > lp):
+        cursorPos -= 1
       elif (ord(ch) == 67) and (cursorPos < lp + len(word)):
         cursorPos +=1
       else:
         continue
     elif chUTF8 in b'\x08\x7f':
       # Remove character if backspace
-      word = word[:-1]
+      cursorPosWord = cursorPos - lp - 1
+
+      if cursorPosWord >= 0:
+        word = word[:cursorPosWord] + word[(cursorPosWord+1):]
+        cursorPos -= 1
+
     elif chUTF8 in b'\r':
       # break if enter pressed
       break
@@ -263,12 +268,14 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
       continue
     elif ord(ch) > 30:
       word += ch
+      cursorPos += 1
 
     # Print line once
     printnow('\r', end='')
-    printnow(prefix + word + (length - len(word) - lp) * blankChar, end='\r')
+    messageLine = prefix + word + (length - len(word) - lp) * blankChar
+    printnow(messageLine, end='\r')
     # Reprint prefix and word to move cursor
-    printnow(prefix + word, end="")
+    printnow(messageLine[:cursorPos], end="")
 
   printnow()
   return prefix + word

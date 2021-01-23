@@ -16,7 +16,7 @@ def main():
 
   parameters = readParameters()
 
-  menuEntry = showMenu(parameters.menu)
+  menuEntry = showMenu(parameters)
 
   shortMessage = getInput(menuEntry,
                           length=parameters.MaxLength,
@@ -75,20 +75,20 @@ def readParameters():
     paramsfid = open(gitRootDirectory.strip('\n') + "/" + paramsFilename, 'r')
 
     for line in paramsfid:
-
       try:
         (key, value) = line.strip('\n').split(' ', maxsplit=1)
       except ValueError:
         key = line.strip('\n')
         value = ''
 
-        if key == "AddType":
-          (type, description) = value.split(' ', maxsplit=1)
-          paramsFile[key].append((type, description))
-        else:
-          paramsFile[key] = value
+      if key == "AddType":
+        (type, description) = value.split(' ', maxsplit=1)
+        paramsFile[key].append((type, description))
+      else:
+        paramsFile[key] = value
   except FileNotFoundError:
     pass
+
 
   params = {}
   params['menu'] = []
@@ -111,19 +111,18 @@ def readParameters():
   params['menu'].extend(paramsFile['AddType'])
 
 
-
   params['MaxLength'] = int(paramsFile.get("MaxLength", 80))
   params['WrapLength'] = int(paramsFile.get("WrapLength", 80))
   params['BlankChar'] = paramsFile.get("BlankChar", "_")[0]
   params["ConfirmCommit"] = paramsFile.get("ConfirmCommit", "yes")
-
+  params["MultipleTypes"] = paramsFile.get("MultipleTypes", "no")
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 
   return tupleConstructor(**params)
 
 
-def showMenu(menu):
+def showMenu(params):
   """
 
   Shows the menu checkbox list to choose the commit type
@@ -138,23 +137,33 @@ def showMenu(menu):
 
   """
 
-  menuQuestions = [ (label + ": " + text, label) for (label, text) in menu ]
+  menuQuestions = [ (label + ": " + text, label) for (label, text) in params.menu ]
 
-  menuMessage = "Select the type(s) of change you are committing " + \
-    "(Press SPACE to select)"
+  if params.MultipleTypes == "yes":
+    menuType = inquirer.Checkbox
+    menuMessage = "Select the type(s) of change you are committing " + \
+      "(Press SPACE to select)"
+  else:
+    menuType = inquirer.List
+    menuMessage = "\033[FSelect the type of change you are committing " + \
+      "(Press ENTER to select)\r\n"
 
   questions = [
-  inquirer.Checkbox('type',
-                    message=menuMessage,
-                    choices=menuQuestions)
+  menuType('type',
+           message=menuMessage,
+           choices=menuQuestions)
   ]
 
+  print()
   choices = inquirer.prompt(questions)['type']
 
   if len(choices) == 0:
     raise RuntimeError("Please choice a type")
 
-  return ','.join(choices)
+  if type(choices) == list:
+    return ",".join(choices)
+  elif type(choices) == str:
+    return choices
 
 
 

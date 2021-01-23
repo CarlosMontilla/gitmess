@@ -34,7 +34,16 @@ def main(args):
 
   menuEntry = showMenu(parameters)
 
-  shortMessage = getInput(menuEntry,
+  scope = getInput("Scope",
+                   length=parameters.ScopeLength,
+                   blankChar=parameters.BlankChar)[1]
+
+  if scope:
+    shortMessagePrefix = menuEntry + "(" + scope + ")"
+  else:
+    shortMessagePrefix = menuEntry
+
+  shortMessage = getInput(prefix=shortMessagePrefix,
                           length=parameters.MaxLength,
                           blankChar=parameters.BlankChar)
 
@@ -145,6 +154,7 @@ def readParameters():
   params["TypesStyle"] = paramsFile.get("TypesStyle", "comma")
   params["Spellcheck"] = paramsFile.get("Spellcheck", "yes")
   params["SpellcheckMaxOptions"] = int(paramsFile.get("SpellcheckMaxOptions", 10))
+  params["ScopeLength"] = int(paramsFile.get("ScopeLength", 20))
 
   if params["SpellcheckMaxOptions"] < 1:
     params["SpellcheckMaxOptions"] = sys.maxsize

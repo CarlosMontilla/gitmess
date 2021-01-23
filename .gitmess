@@ -4,3 +4,4 @@ BlankChar _
 MaxLength 75
 WrapLength 80
 MultipleTypes no
+TypesStyle comma

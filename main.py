@@ -116,6 +116,7 @@ def readParameters():
   params['BlankChar'] = paramsFile.get("BlankChar", "_")[0]
   params["ConfirmCommit"] = paramsFile.get("ConfirmCommit", "yes")
   params["MultipleTypes"] = paramsFile.get("MultipleTypes", "no")
+  params["TypesStyle"] = paramsFile.get("TypesStyle", "comma")
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 
@@ -160,11 +161,17 @@ def showMenu(params):
   if len(choices) == 0:
     raise RuntimeError("Please choice a type")
 
-  if type(choices) == list:
-    return ",".join(choices)
-  elif type(choices) == str:
-    return choices
+  if type(choices) == str:
+    choices = [choices]
 
+  if params.TypesStyle == "comma":
+    formattedTypes = ','.join(choices)
+  elif params.TypesStyle == "brackets":
+    formattedTypes = ""
+    for commitType in choices:
+      formattedTypes += "[" + commitType + "]"
+
+  return formattedTypes
 
 
 def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):

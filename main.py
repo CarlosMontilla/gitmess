@@ -105,7 +105,7 @@ def readParameters():
 
   if ("UseDefaultMenu" in paramsFile) and \
      (paramsFile["UseDefaultMenu"] == "yes") or \
-     (not "UseDefaultMenu" in paramsFile):
+     ("UseDefaultMenu" not in paramsFile):
 
 
     params['menu'] = [("feat", "New feature"),

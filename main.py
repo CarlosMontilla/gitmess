@@ -57,7 +57,7 @@ def main(args):
 
 def somethingToCommit():
   return subprocess.run(["git", "diff", "--cached", "--quiet"],
-                        check=True).returncode == 1
+                        check=False).returncode == 1
 
 def readParameters():
   """

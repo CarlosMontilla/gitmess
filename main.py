@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
-import termios, sys, tty
-import inquirer
+from collections import namedtuple
+import termios
+import sys
+import tty
 import textwrap
 import subprocess
 import shutil
 import argparse
 import os
 
-from collections import namedtuple
+import inquirer
 
 def main(args):
 
@@ -48,13 +50,14 @@ def main(args):
 
   commit(commitMessage, parameters)
 
-  return 0
+  return
 
 
 ## ----------------------------------------------------------------------------
 
 def somethingToCommit():
-  return subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode == 1
+  return subprocess.run(["git", "diff", "--cached", "--quiet"],
+                        check=False).returncode == 1
 
 def readParameters():
   """
@@ -72,13 +75,14 @@ def readParameters():
 
   paramsFilename = ".gitmess"
   gitRootDirectory = subprocess.run(["git", "rev-parse",  "--show-toplevel"],
-                                    capture_output=True).stdout.decode('utf-8')
+                                    capture_output=True, check=True,
+                                    ).stdout.decode('utf-8').rstrip('\n')
 
 
   paramsFile = {}
   paramsFile["AddType"] = []
   try:
-    paramsfid = open(gitRootDirectory.strip('\n') + "/" + paramsFilename, 'r')
+    paramsfid = open(gitRootDirectory + "/" + paramsFilename, 'r')
 
     for line in paramsfid:
       try:
@@ -88,8 +92,8 @@ def readParameters():
         value = ''
 
       if key == "AddType":
-        (type, description) = value.split(' ', maxsplit=1)
-        paramsFile[key].append((type, description))
+        (commitType, description) = value.split(' ', maxsplit=1)
+        paramsFile[key].append((commitType, description))
       else:
         paramsFile[key] = value
   except FileNotFoundError:
@@ -101,7 +105,7 @@ def readParameters():
 
   if ("UseDefaultMenu" in paramsFile) and \
      (paramsFile["UseDefaultMenu"] == "yes") or \
-     (not "UseDefaultMenu" in paramsFile):
+     ("UseDefaultMenu" not in paramsFile):
 
 
     params['menu'] = [("feat", "New feature"),
@@ -167,7 +171,7 @@ def showMenu(params):
   if len(choices) == 0:
     raise RuntimeError("Please choice a type")
 
-  if type(choices) == str:
+  if isinstance(choices, str):
     choices = [choices]
 
   if params.TypesStyle == "comma":
@@ -188,21 +192,21 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
   Returns a string with the final commit message to be used
 
   """
-  cm = ""
+  message = ""
 
-  cm = shortMessage[0] + shortMessage[1]
+  message = shortMessage[0] + shortMessage[1]
 
   if longMessage:
-    cm += '\n\n' +  '\n'.join(textwrap.wrap(longMessage,
-                                            width=params.WrapLength))
+    message += '\n\n' +  '\n'.join(textwrap.wrap(longMessage,
+                                                 width=params.WrapLength))
 
   if issue:
-    cm += "\n\n" + 'Issue: ' + issue
+    message += "\n\n" + 'Issue: ' + issue
 
   if breaking:
-    cm += "\n\n" + "BREAKING CHANGE: " + breaking
+    message += "\n\n" + "BREAKING CHANGE: " + breaking
 
-  return cm
+  return message
 
 
 
@@ -214,14 +218,14 @@ def getChar():
   This function read a single character pressed by the user and returns it
 
   """
-  fd = sys.stdin.fileno()
-  oldSettings = termios.tcgetattr(fd)
+  fileDescriptor = sys.stdin.fileno()
+  oldSettings = termios.tcgetattr(fileDescriptor)
   try:
-    tty.setraw(fd)
-    ch = sys.stdin.read(1)
+    tty.setraw(fileDescriptor)
+    char = sys.stdin.read(1)
   finally:
-    termios.tcsetattr(fd, termios.TCSADRAIN, oldSettings)
-  return ch
+    termios.tcsetattr(fileDescriptor, termios.TCSADRAIN, oldSettings)
+  return char
 
 
 
@@ -244,61 +248,57 @@ def getInput(prefix="", length=80, blankChar='_'):
 
   """
 
-  sizeTerminal = shutil.get_terminal_size()
   backline="\033[F"
 
   prefix += ": "
-  lp = len(prefix)
-  nCharLines = lp
-  nLines = 1
+  lenPrefix = len(prefix)
 
   word = ""
-  cursorPos = lp
+  cursorPos = lenPrefix
 
-  messageLine = prefix + (length - len(word) - lp) * blankChar
+  messageLine = prefix + (length - len(word) - lenPrefix) * blankChar
   maxLengthMessage = len(messageLine)
-  (nlines, cursorLine) = printMessageWrapped(messageLine, lp)
+  (nlines, cursorLine) = printMessageWrapped(messageLine, lenPrefix)
 
   escapeNext = 0
   while True:
-    ch = getChar()
-    ch = str(ch)
+    char = str(getChar())
 
     if escapeNext > 0:
       escapeNext -= 1
-      if ord(ch) == 68 and (cursorPos > lp):
+      if ord(char) == 68 and (cursorPos > lenPrefix):
         cursorPos -= 1
-      elif (ord(ch) == 67) and (cursorPos < lp + len(word)):
+      elif (ord(char) == 67) and (cursorPos < lenPrefix + len(word)):
         cursorPos +=1
       else:
         continue
-    elif ord(ch) == 127:
+    elif ord(char) == 127:
       # Remove character if backspace
-      cursorPosWord = cursorPos - lp
+      cursorPosWord = cursorPos - lenPrefix
 
       if cursorPosWord > 0:
         word = word[:(cursorPosWord-1)] + word[(cursorPosWord):]
         cursorPos -= 1
 
-    elif ord(ch) == 13:
+    elif ord(char) == 13:
       # break if enter pressed
       break
-    elif ord(ch) == 27:
+    elif ord(char) == 27:
       escapeNext = 2
-    elif ord(ch) == 3:
+    elif ord(char) == 3:
       raise KeyboardInterrupt
-    elif len(word) + lp == length:
+    elif len(word) + lenPrefix == length:
       continue
-    elif ord(ch) > 30:
-      cursorPosWord = cursorPos - lp
-      word = word[:cursorPosWord] + ch + word[cursorPosWord:]
+    elif ord(char) > 30:
+      cursorPosWord = cursorPos - lenPrefix
+      word = word[:cursorPosWord] + char + word[cursorPosWord:]
       cursorPos += 1
 
     # Bring back cursor to the very beginning of the input line
     print('\r', end='')
     print(backline*cursorLine, end='')
 
-    messageLine = prefix + word + (length - len(word) - lp) * blankChar
+    messageLine = prefix + word + (length - len(word) - lenPrefix) * blankChar
 
     # Clean any old input before writing new line
     if len(messageLine) > maxLengthMessage:
@@ -324,7 +324,6 @@ def printMessageWrapped(message, cursorPos):
   cursorLine = cursorPos // cols
   cursorPosLine = cursorPos % cols
 
-  wrappedMessage = []
   lines = [message[idx*cols:(idx+1)*cols] for idx in range(nlines)]
 
   # First print the entire message
@@ -370,14 +369,15 @@ def commit(message, params):
     shouldCommit = "yes"
 
   if shouldCommit == "yes":
-    subprocess.run(["git", "commit", "--message", message])
+    subprocess.run(["git", "commit", "--message", message], check=True)
 
 def dumpConfig(params):
   paramsFilename = ".gitmess"
   gitRootDirectory = subprocess.run(["git", "rev-parse",  "--show-toplevel"],
-                                    capture_output=True).stdout.decode('utf-8')
+                                    capture_output=True, check=True,
+                                    ).stdout.decode('utf-8').rstrip('\n')
 
-  filepath = gitRootDirectory.rstrip('\n') + "/" + paramsFilename
+  filepath = gitRootDirectory + "/" + paramsFilename
   if not os.path.isfile(filepath):
     with open(filepath, 'w+') as fid:
       for (key, value) in params._asdict().items():

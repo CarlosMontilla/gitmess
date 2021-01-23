@@ -329,12 +329,14 @@ def commit(message, params):
 
   if params.ConfirmCommit == "yes":
 
-    print('='*params.MaxLength)
+    headerLength = max(params.MaxLength, params.WrapLength)
+
+    print('='*headerLength)
     print("COMMIT MESSAGE")
-    print("="*params.MaxLength)
+    print("="*headerLength)
 
     print("\n" + message + "\n")
-    print("="*params.MaxLength)
+    print("="*headerLength)
 
     shouldCommit = inquirer.prompt(
     [inquirer.List('confirm',

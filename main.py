@@ -417,6 +417,7 @@ def spellcheck(message, params):
 
     corrected = False
     userInput = ""
+    userWord = ""
     originalWord = word
 
     while not corrected:
@@ -426,20 +427,26 @@ def spellcheck(message, params):
       listCandidates = listCandidates[:params.SpellcheckMaxOptions]
 
       if userInput:
-        listCandidates = [userInput] + listCandidates
+        userWord = userInput
+        listCandidates = [userWord] + listCandidates
 
       for idx, candidate in enumerate(listCandidates):
         print("\t" + str(idx+1) + ": " + candidate, end='')
-        if userInput and idx == 0:
+        if userWord and idx == 0:
           print(" (your last input)")
         print()
 
       print()
       userInput = input("Select word or write a different word \n" + \
-                        "(type -1 to keep the original word)\n-> ")
+                        "(type -1 to keep the original word: " + originalWord + "\n-> ")
 
       try:
         idx = int(userInput)
+        if idx > len(listCandidates):
+          print("Please insert a number between 1 and " + str(len(listCandidates)))
+          userInput = ""
+          input("Press ENTER to continue")
+          continue
         if idx > 0:
           newWord = listCandidates[idx-1]
           wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)

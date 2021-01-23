@@ -234,8 +234,8 @@ def getInput(prefix="", length=80, blankChar='_'):
   cursorPos = lp
 
   messageLine = prefix + (length - len(word) - lp) * blankChar
-
-  printMessageWrapped(messageLine, lp)
+  maxLengthMessage = len(messageLine)
+  (nlines, cursorLine) = printMessageWrapped(messageLine, lp)
 
   escapeNext = 0
   while True:
@@ -272,14 +272,22 @@ def getInput(prefix="", length=80, blankChar='_'):
       word = word[:cursorPosWord] + ch + word[cursorPosWord:]
       cursorPos += 1
 
-    # Print line once
-    printnow('\r', end='')
-    messageLine = prefix + word + (length - len(word) - lp) * blankChar
-    printnow(messageLine, end='\r')
-    # Reprint prefix and word to move cursor
-    printnow(messageLine[:cursorPos], end="")
+    # Bring back cursor to the very beginning of the input line
+    print('\r', end='')
+    print(backline*cursorLine, end='')
 
-  printnow()
+    messageLine = prefix + word + (length - len(word) - lp) * blankChar
+
+    # Clean any old input before writing new line
+    if len(messageLine) > maxLengthMessage:
+      maxLengthMessage = len(messageLine)
+    printMessageWrapped(' '*maxLengthMessage, 0)
+
+
+    (nlines, cursorLine) = printMessageWrapped(messageLine, cursorPos)
+
+  # Print enough new line so the new input does not overlap with this input
+  print('\n'*(nlines - cursorLine), flush=True)
   return (prefix, word)
 
 
@@ -291,7 +299,7 @@ def printMessageWrapped(message, cursorPos):
   backline = "\033[F"
 
   nlines = len(message) // cols + 1
-  cursorLine = cursorPos // cols + 1
+  cursorLine = cursorPos // cols
   cursorPosLine = cursorPos % cols
 
   wrappedMessage = []
@@ -304,8 +312,8 @@ def printMessageWrapped(message, cursorPos):
   print('\r' + backline*(nlines-1), end="")
 
   #print until cursor
-  for idx in range(cursorLine):
-    if idx == (cursorLine-1):
+  for idx in range(cursorLine+1):
+    if idx == (cursorLine):
       print(lines[idx][:cursorPosLine], end="", flush=True)
     else:
       print(lines[idx], end='\n')

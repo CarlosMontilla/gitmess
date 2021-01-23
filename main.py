@@ -235,11 +235,7 @@ def getInput(prefix="", length=80, blankChar='_'):
 
   messageLine = prefix + (length - len(word) - lp) * blankChar
 
-  printnow = lambda message="", end="\n": print(message, end=end, flush=True)
-
-  printnow(messageLine, end='\r')
-  # Reprint prefix to move cursor
-  printnow(messageLine[:cursorPos], end="")
+  printMessageWrapped(messageLine, lp)
 
   escapeNext = 0
   while True:
@@ -295,10 +291,26 @@ def printMessageWrapped(message, cursorPos):
   backline = "\033[F"
 
   nlines = len(message) // cols + 1
+  cursorLine = cursorPos // cols + 1
+  cursorPosLine = cursorPos % cols
 
   wrappedMessage = []
   lines = [message[idx*cols:(idx+1)*cols] for idx in range(nlines)]
 
+  # First print the entire message
+  print('\n'.join(lines), end="")
+
+  #bring back cursor to the beginning of message
+  print('\r' + backline*(nlines-1), end="")
+
+  #print until cursor
+  for idx in range(cursorLine):
+    if idx == (cursorLine-1):
+      print(lines[idx][:cursorPosLine], end="", flush=True)
+    else:
+      print(lines[idx], end='\n')
+
+  return (nlines, cursorLine)
 
 def commit(message, params):
   """

@@ -10,6 +10,10 @@ import shutil
 import argparse
 import os
 
+try:
+  import spellchecker
+except ModuleNotFoundError:
+  spellchecker = None
 import inquirer
 
 def main(args):
@@ -23,6 +27,9 @@ def main(args):
     print("There is nothing staged to commit")
     return
 
+  if parameters.Spellcheck == "yes" and not spellchecker:
+    print("The module spellchecker is not installed")
+    return
 
   menuEntry = showMenu(parameters)
 
@@ -41,6 +48,11 @@ def main(args):
   breakingChange = getInput("Breaking change",
                             length=sys.maxsize,
                             blankChar='')[1]
+
+  if parameters.Spellcheck == "yes":
+    shortMessage = (shortMessage[0], spellcheck(shortMessage[1]))
+    longMessage = spellcheck(longMessage)
+    breakingChange = spellcheck(breakingChange)
 
   commitMessage = buildCommitMessage(shortMessage,
                                      longMessage,
@@ -387,6 +399,35 @@ def dumpConfig(params):
   else:
     print("Configuration file already exists")
 
+def spellcheck(message):
+
+  spell = spellchecker.SpellChecker()
+  wrongWords = list(spell.unknown(message.split(' ')))
+  print(wrongWords)
+  for word in wrongWords:
+    if word:
+      corrected = False
+      while not corrected:
+        print("* " + word)
+        print("Possible candidates are: ")
+        listCandidates = list(spell.candidates(word))
+
+        for idx, candidate in enumerate(listCandidates):
+          print(str(idx+1) + ": " + candidate)
+
+        userInput = input("Select word or write a different word \n" + \
+                          "(type -1 to keep the original word )\n->")
+
+        try:
+          idx = int(userInput)
+          if idx > 0:
+            newWord = listCandidates[idx-1]
+            message = message.replace(word, newWord)
+          corrected = True
+        except ValueError:
+          pass
+
+    return message
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--config", action="store_true", default=False)

@@ -218,13 +218,13 @@ def getChar():
   This function read a single character pressed by the user and returns it
 
   """
-  fd = sys.stdin.fileno()
-  oldSettings = termios.tcgetattr(fd)
+  fileDescriptor = sys.stdin.fileno()
+  oldSettings = termios.tcgetattr(fileDescriptor)
   try:
-    tty.setraw(fd)
+    tty.setraw(fileDescriptor)
     ch = sys.stdin.read(1)
   finally:
-    termios.tcsetattr(fd, termios.TCSADRAIN, oldSettings)
+    termios.tcsetattr(fileDescriptor, termios.TCSADRAIN, oldSettings)
   return ch
 
 

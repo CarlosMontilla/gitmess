@@ -5,16 +5,22 @@ import inquirer
 import textwrap
 import subprocess
 import shutil
+import argparse
+import os
 
 from collections import namedtuple
 
-def main():
+def main(args):
+
+  parameters = readParameters()
+  if args.config:
+    dumpConfig(parameters)
+    return
 
   if not somethingToCommit():
     print("There is nothing staged to commit")
     return
 
-  parameters = readParameters()
 
   menuEntry = showMenu(parameters)
 
@@ -110,7 +116,7 @@ def readParameters():
 
   params['menu'].extend(paramsFile['AddType'])
 
-
+  params["UseDefaultMenu"] = paramsFile.get("UseDefaultMenu", "yes")
   params['MaxLength'] = int(paramsFile.get("MaxLength", 80))
   params['WrapLength'] = int(paramsFile.get("WrapLength", 80))
   params['BlankChar'] = paramsFile.get("BlankChar", "_")[0]
@@ -366,5 +372,21 @@ def commit(message, params):
   if shouldCommit == "yes":
     subprocess.run(["git", "commit", "--message", message])
 
+def dumpConfig(params):
+  paramsFilename = ".gitmess"
+  gitRootDirectory = subprocess.run(["git", "rev-parse",  "--show-toplevel"],
+                                    capture_output=True).stdout.decode('utf-8')
+
+  filepath = gitRootDirectory.rstrip('\n') + "/" + paramsFilename
+  if not os.path.isfile(filepath):
+    with open(filepath, 'w+') as fid:
+      for (key, value) in params._asdict().items():
+        if key != "menu":
+          print(key + " " + str(value), file=fid)
+  else:
+    print("Configuration file already exists")
+
 if __name__ == "__main__":
-  main()
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--config", action="store_true", default=False)
+  main(parser.parse_args())

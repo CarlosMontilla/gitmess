@@ -427,6 +427,8 @@ def spellcheck(message, params):
       listCandidates = list(spell.candidates(word))
       listCandidates = listCandidates[:params.SpellcheckMaxOptions]
 
+      listCandidates = [candidate for candidate in listCandidates if candidate != word]
+
       if userInput:
         userWord = userInput
         listCandidates = [userWord] + listCandidates
@@ -436,6 +438,9 @@ def spellcheck(message, params):
         if userWord and idx == 0:
           print(" (your last input)")
         print()
+
+      if len(listCandidates) == 0:
+        print("\tNo suitable option was found")
 
       print()
       userInput = input("Select word or write a different word \n" + \

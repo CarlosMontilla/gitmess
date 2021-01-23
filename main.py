@@ -92,8 +92,8 @@ def readParameters():
         value = ''
 
       if key == "AddType":
-        (type, description) = value.split(' ', maxsplit=1)
-        paramsFile[key].append((type, description))
+        (commitType, description) = value.split(' ', maxsplit=1)
+        paramsFile[key].append((commitType, description))
       else:
         paramsFile[key] = value
   except FileNotFoundError:

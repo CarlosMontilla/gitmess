@@ -17,15 +17,21 @@ def main():
 
   menuEntry = showMenu(parameters.menu)
 
-  shortMessage = getShortMessage(menuEntry,
-                                 length=parameters.MaxLength,
-                                 blankChar=parameters.BlankChar)
+  shortMessage = getInput(menuEntry,
+                          length=parameters.MaxLength,
+                          blankChar=parameters.BlankChar)
 
-  longMessage = getInput("Longer description: ")
+  longMessage = getInput("Longer description",
+                         length=sys.maxsize,
+                         blankChar='')[1]
 
-  issueCode = getInput("Issue code: ")
+  issueCode = getInput("Issue code",
+                       length=sys.maxsize,
+                       blankChar='')[1]
 
-  breakingChange = getInput("Breaking change: ")
+  breakingChange = getInput("Breaking change",
+                            length=sys.maxsize,
+                            blankChar='')[1]
 
   commitMessage = buildCommitMessage(shortMessage,
                                      longMessage,
@@ -151,18 +157,6 @@ def showMenu(menu):
 
 
 
-
-def getInput(question):
-  """
-
-  Prompt a question and reads the input of the user
-
-  Returns a string with the input typed by the user
-
-  """
-  print(question)
-  return input()
-
 def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
   """
 
@@ -173,7 +167,7 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
   """
   cm = ""
 
-  cm = shortMessage
+  cm = shortMessage[0] + shortMessage[1]
 
   if longMessage:
     cm += '\n\n' +  '\n'.join(textwrap.wrap(longMessage,
@@ -208,7 +202,7 @@ def getChar():
 
 
 
-def getShortMessage(prefix="", length=80, blankChar='_'):
+def getInput(prefix="", length=80, blankChar='_'):
   """
 
   Builds the prompt for the short message
@@ -284,7 +278,7 @@ def getShortMessage(prefix="", length=80, blankChar='_'):
     printnow(messageLine[:cursorPos], end="")
 
   printnow()
-  return prefix + word
+  return (prefix, word)
 
 
 def commit(message, params):

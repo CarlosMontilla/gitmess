@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
-import termios, sys, tty
-import inquirer
+from collections import namedtuple
+import termios
+import sys
+import tty
 import textwrap
 import subprocess
 import shutil
 import argparse
 import os
 
-from collections import namedtuple
+import inquirer
 
 def main(args):
 

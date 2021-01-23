@@ -244,13 +244,10 @@ def getInput(prefix="", length=80, blankChar='_'):
 
   """
 
-  sizeTerminal = shutil.get_terminal_size()
   backline="\033[F"
 
   prefix += ": "
   lp = len(prefix)
-  nCharLines = lp
-  nLines = 1
 
   word = ""
   cursorPos = lp
@@ -324,7 +321,6 @@ def printMessageWrapped(message, cursorPos):
   cursorLine = cursorPos // cols
   cursorPosLine = cursorPos % cols
 
-  wrappedMessage = []
   lines = [message[idx*cols:(idx+1)*cols] for idx in range(nlines)]
 
   # First print the entire message

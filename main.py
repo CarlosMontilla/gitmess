@@ -251,14 +251,14 @@ def getInput(prefix="", length=80, blankChar='_'):
   backline="\033[F"
 
   prefix += ": "
-  lp = len(prefix)
+  lenPrefix = len(prefix)
 
   word = ""
-  cursorPos = lp
+  cursorPos = lenPrefix
 
-  messageLine = prefix + (length - len(word) - lp) * blankChar
+  messageLine = prefix + (length - len(word) - lenPrefix) * blankChar
   maxLengthMessage = len(messageLine)
-  (nlines, cursorLine) = printMessageWrapped(messageLine, lp)
+  (nlines, cursorLine) = printMessageWrapped(messageLine, lenPrefix)
 
   escapeNext = 0
   while True:
@@ -267,15 +267,15 @@ def getInput(prefix="", length=80, blankChar='_'):
 
     if escapeNext > 0:
       escapeNext -= 1
-      if ord(ch) == 68 and (cursorPos > lp):
+      if ord(ch) == 68 and (cursorPos > lenPrefix):
         cursorPos -= 1
-      elif (ord(ch) == 67) and (cursorPos < lp + len(word)):
+      elif (ord(ch) == 67) and (cursorPos < lenPrefix + len(word)):
         cursorPos +=1
       else:
         continue
     elif ord(ch) == 127:
       # Remove character if backspace
-      cursorPosWord = cursorPos - lp
+      cursorPosWord = cursorPos - lenPrefix
 
       if cursorPosWord > 0:
         word = word[:(cursorPosWord-1)] + word[(cursorPosWord):]
@@ -288,10 +288,10 @@ def getInput(prefix="", length=80, blankChar='_'):
       escapeNext = 2
     elif ord(ch) == 3:
       raise KeyboardInterrupt
-    elif len(word) + lp == length:
+    elif len(word) + lenPrefix == length:
       continue
     elif ord(ch) > 30:
-      cursorPosWord = cursorPos - lp
+      cursorPosWord = cursorPos - lenPrefix
       word = word[:cursorPosWord] + ch + word[cursorPosWord:]
       cursorPos += 1
 
@@ -299,7 +299,7 @@ def getInput(prefix="", length=80, blankChar='_'):
     print('\r', end='')
     print(backline*cursorLine, end='')
 
-    messageLine = prefix + word + (length - len(word) - lp) * blankChar
+    messageLine = prefix + word + (length - len(word) - lenPrefix) * blankChar
 
     # Clean any old input before writing new line
     if len(messageLine) > maxLengthMessage:

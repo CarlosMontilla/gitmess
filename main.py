@@ -222,10 +222,10 @@ def getChar():
   oldSettings = termios.tcgetattr(fileDescriptor)
   try:
     tty.setraw(fileDescriptor)
-    ch = sys.stdin.read(1)
+    char = sys.stdin.read(1)
   finally:
     termios.tcsetattr(fileDescriptor, termios.TCSADRAIN, oldSettings)
-  return ch
+  return char
 
 
 

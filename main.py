@@ -82,11 +82,11 @@ def readParameters():
         key = line.strip('\n')
         value = ''
 
-        if key == "AddType":
-          (type, description) = value.split(' ', maxsplit=1)
-          paramsFile[key].append((type, description))
-        else:
-          paramsFile[key] = value
+      if key == "AddType":
+        (type, description) = value.split(' ', maxsplit=1)
+        paramsFile[key].append((type, description))
+      else:
+        paramsFile[key] = value
   except FileNotFoundError:
     pass
 

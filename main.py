@@ -4,6 +4,7 @@ import termios, sys, tty
 import inquirer
 import textwrap
 import subprocess
+import shutil
 
 from collections import namedtuple
 
@@ -221,8 +222,13 @@ def getInput(prefix="", length=80, blankChar='_'):
 
   """
 
+  sizeTerminal = shutil.get_terminal_size()
+  backline="\033[F"
+
   prefix += ": "
   lp = len(prefix)
+  nCharLines = lp
+  nLines = 1
 
   word = ""
   cursorPos = lp
@@ -279,6 +285,19 @@ def getInput(prefix="", length=80, blankChar='_'):
 
   printnow()
   return (prefix, word)
+
+
+def printMessageWrapped(message, cursorPos):
+
+  terminalSize = shutil.get_terminal_size()
+  margin = 5
+  cols = terminalSize.columns - margin
+  backline = "\033[F"
+
+  nlines = len(message) // cols + 1
+
+  wrappedMessage = []
+  lines = [message[idx*cols:(idx+1)*cols] for idx in range(nlines)]
 
 
 def commit(message, params):

@@ -9,12 +9,13 @@ import subprocess
 import shutil
 import argparse
 import os
+import re
+import inquirer
 
 try:
   import spellchecker
 except ModuleNotFoundError:
   spellchecker = None
-import inquirer
 
 def main(args):
 
@@ -50,9 +51,11 @@ def main(args):
                             blankChar='')[1]
 
   if parameters.Spellcheck == "yes":
+    print("Starting spellchecking... ")
     shortMessage = (shortMessage[0], spellcheck(shortMessage[1]))
     longMessage = spellcheck(longMessage)
     breakingChange = spellcheck(breakingChange)
+    print("Spellchecking done")
 
   commitMessage = buildCommitMessage(shortMessage,
                                      longMessage,
@@ -403,31 +406,41 @@ def spellcheck(message):
 
   spell = spellchecker.SpellChecker()
   wrongWords = list(spell.unknown(message.split(' ')))
-  print(wrongWords)
+
+  wrongWords = [words for words in wrongWords if words]
+
   for word in wrongWords:
-    if word:
-      corrected = False
-      while not corrected:
-        print("* " + word)
-        print("Possible candidates are: ")
-        listCandidates = list(spell.candidates(word))
+    corrected = False
 
-        for idx, candidate in enumerate(listCandidates):
-          print(str(idx+1) + ": " + candidate)
+    while not corrected:
+      print("-> Word not found in dictionary: " + word)
+      print("Possible candidates are: ")
+      listCandidates = list(spell.candidates(word))
 
-        userInput = input("Select word or write a different word \n" + \
-                          "(type -1 to keep the original word )\n->")
+      for idx, candidate in enumerate(listCandidates):
+        print("\t" + str(idx+1) + ": " + candidate)
 
-        try:
-          idx = int(userInput)
-          if idx > 0:
-            newWord = listCandidates[idx-1]
-            message = message.replace(word, newWord)
+      print()
+      userInput = input("Select word or write a different word \n" + \
+                        "(type -1 to keep the original word)\n-> ")
+
+      try:
+        idx = int(userInput)
+        if idx > 0:
+          newWord = listCandidates[idx-1]
+          wrongReg = re.compile(re.escape(word), re.IGNORECASE)
+          message = wrongReg.sub(newWord, message)
+        corrected = True
+      except ValueError:
+        newCandidates = spell.unknown([userInput])
+        if not newCandidates:
+          wrongReg = re.compile(re.escape(word), re.IGNORECASE)
+          message = wrongReg.sub(userInput, message)
           corrected = True
-        except ValueError:
-          pass
+        else:
+          word = userInput
 
-    return message
+  return message
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--config", action="store_true", default=False)

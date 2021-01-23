@@ -52,9 +52,9 @@ def main(args):
 
   if parameters.Spellcheck == "yes":
     print("Starting spellchecking... ")
-    shortMessage = (shortMessage[0], spellcheck(shortMessage[1]))
-    longMessage = spellcheck(longMessage)
-    breakingChange = spellcheck(breakingChange)
+    shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
+    longMessage = spellcheck(longMessage, parameters)
+    breakingChange = spellcheck(breakingChange, parameters)
     print("Spellchecking done")
 
   commitMessage = buildCommitMessage(shortMessage,
@@ -143,6 +143,10 @@ def readParameters():
   params["MultipleTypes"] = paramsFile.get("MultipleTypes", "no")
   params["TypesStyle"] = paramsFile.get("TypesStyle", "comma")
   params["Spellcheck"] = paramsFile.get("Spellcheck", "yes")
+  params["SpellcheckMaxOptions"] = int(paramsFile.get("SpellcheckMaxOptions", 10))
+
+  if params["SpellcheckMaxOptions"] < 1:
+    params["SpellcheckMaxOptions"] = sys.maxsize
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 
@@ -402,7 +406,7 @@ def dumpConfig(params):
   else:
     print("Configuration file already exists")
 
-def spellcheck(message):
+def spellcheck(message, params):
 
   spell = spellchecker.SpellChecker()
   wrongWords = list(spell.unknown(message.split(' ')))
@@ -419,6 +423,7 @@ def spellcheck(message):
       print("-> Word not found in dictionary: " + word)
       print("Possible candidates are: ")
       listCandidates = list(spell.candidates(word))
+      listCandidates = listCandidates[:params.SpellcheckMaxOptions]
 
       if userInput:
         listCandidates = [userInput] + listCandidates

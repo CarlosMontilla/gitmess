@@ -171,7 +171,7 @@ def showMenu(params):
   if len(choices) == 0:
     raise RuntimeError("Please choice a type")
 
-  if type(choices) == str:
+  if isinstance(choices, str):
     choices = [choices]
 
   if params.TypesStyle == "comma":

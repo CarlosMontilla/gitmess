@@ -7,4 +7,4 @@ MultipleTypes no
 TypesStyle comma
 Spellcheck yes
 SpellcheckMaxOptions 8
-ScopeLength=15
+ScopeLength 15

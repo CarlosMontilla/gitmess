@@ -192,21 +192,21 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
   Returns a string with the final commit message to be used
 
   """
-  cm = ""
+  message = ""
 
-  cm = shortMessage[0] + shortMessage[1]
+  message = shortMessage[0] + shortMessage[1]
 
   if longMessage:
-    cm += '\n\n' +  '\n'.join(textwrap.wrap(longMessage,
-                                            width=params.WrapLength))
+    message += '\n\n' +  '\n'.join(textwrap.wrap(longMessage,
+                                                 width=params.WrapLength))
 
   if issue:
-    cm += "\n\n" + 'Issue: ' + issue
+    message += "\n\n" + 'Issue: ' + issue
 
   if breaking:
-    cm += "\n\n" + "BREAKING CHANGE: " + breaking
+    message += "\n\n" + "BREAKING CHANGE: " + breaking
 
-  return cm
+  return message
 
 
 

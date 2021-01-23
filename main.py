@@ -137,7 +137,7 @@ def readParameters():
   params['menu'].extend(paramsFile['AddType'])
 
   params["UseDefaultMenu"] = paramsFile.get("UseDefaultMenu", "yes")
-  params['MaxLength'] = int(paramsFile.get("MaxLength", 80))
+  params['MaxLength'] = int(paramsFile.get("MaxLength", 70))
   params['WrapLength'] = int(paramsFile.get("WrapLength", 80))
   params['BlankChar'] = paramsFile.get("BlankChar", "_")[0]
   params["ConfirmCommit"] = paramsFile.get("ConfirmCommit", "yes")

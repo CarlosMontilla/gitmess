@@ -1,7 +1,7 @@
 UseDefaultMenu yes
 ConfirmCommit yes
 BlankChar _
-MaxLength 75
+MaxLength 70
 WrapLength 80
 MultipleTypes no
 TypesStyle comma

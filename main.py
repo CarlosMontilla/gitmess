@@ -262,18 +262,17 @@ def getInput(prefix="", length=80, blankChar='_'):
 
   escapeNext = 0
   while True:
-    ch = getChar()
-    ch = str(ch)
+    char = str(getChar())
 
     if escapeNext > 0:
       escapeNext -= 1
-      if ord(ch) == 68 and (cursorPos > lenPrefix):
+      if ord(char) == 68 and (cursorPos > lenPrefix):
         cursorPos -= 1
-      elif (ord(ch) == 67) and (cursorPos < lenPrefix + len(word)):
+      elif (ord(char) == 67) and (cursorPos < lenPrefix + len(word)):
         cursorPos +=1
       else:
         continue
-    elif ord(ch) == 127:
+    elif ord(char) == 127:
       # Remove character if backspace
       cursorPosWord = cursorPos - lenPrefix
 
@@ -281,18 +280,18 @@ def getInput(prefix="", length=80, blankChar='_'):
         word = word[:(cursorPosWord-1)] + word[(cursorPosWord):]
         cursorPos -= 1
 
-    elif ord(ch) == 13:
+    elif ord(char) == 13:
       # break if enter pressed
       break
-    elif ord(ch) == 27:
+    elif ord(char) == 27:
       escapeNext = 2
-    elif ord(ch) == 3:
+    elif ord(char) == 3:
       raise KeyboardInterrupt
     elif len(word) + lenPrefix == length:
       continue
-    elif ord(ch) > 30:
+    elif ord(char) > 30:
       cursorPosWord = cursorPos - lenPrefix
-      word = word[:cursorPosWord] + ch + word[cursorPosWord:]
+      word = word[:cursorPosWord] + char + word[cursorPosWord:]
       cursorPos += 1
 
     # Bring back cursor to the very beginning of the input line

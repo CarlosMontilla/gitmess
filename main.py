@@ -56,7 +56,8 @@ def main(args):
 ## ----------------------------------------------------------------------------
 
 def somethingToCommit():
-  return subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode == 1
+  return subprocess.run(["git", "diff", "--cached", "--quiet"],
+                        check=True).returncode == 1
 
 def readParameters():
   """
@@ -74,13 +75,14 @@ def readParameters():
 
   paramsFilename = ".gitmess"
   gitRootDirectory = subprocess.run(["git", "rev-parse",  "--show-toplevel"],
-                                    capture_output=True).stdout.decode('utf-8')
+                                    capture_output=True, check=True,
+                                    ).stdout.decode('utf-8').rstrip('\n')
 
 
   paramsFile = {}
   paramsFile["AddType"] = []
   try:
-    paramsfid = open(gitRootDirectory.strip('\n') + "/" + paramsFilename, 'r')
+    paramsfid = open(gitRootDirectory + "/" + paramsFilename, 'r')
 
     for line in paramsfid:
       try:
@@ -368,14 +370,15 @@ def commit(message, params):
     shouldCommit = "yes"
 
   if shouldCommit == "yes":
-    subprocess.run(["git", "commit", "--message", message])
+    subprocess.run(["git", "commit", "--message", message], check=True)
 
 def dumpConfig(params):
   paramsFilename = ".gitmess"
   gitRootDirectory = subprocess.run(["git", "rev-parse",  "--show-toplevel"],
-                                    capture_output=True).stdout.decode('utf-8')
+                                    capture_output=True, check=True,
+                                    ).stdout.decode('utf-8').rstrip('\n')
 
-  filepath = gitRootDirectory.rstrip('\n') + "/" + paramsFilename
+  filepath = gitRootDirectory + "/" + paramsFilename
   if not os.path.isfile(filepath):
     with open(filepath, 'w+') as fid:
       for (key, value) in params._asdict().items():

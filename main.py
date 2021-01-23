@@ -127,6 +127,7 @@ def readParameters():
   params["ConfirmCommit"] = paramsFile.get("ConfirmCommit", "yes")
   params["MultipleTypes"] = paramsFile.get("MultipleTypes", "no")
   params["TypesStyle"] = paramsFile.get("TypesStyle", "comma")
+  params["Spellcheck"] = paramsFile.get("Spellcheck", "yes")
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 

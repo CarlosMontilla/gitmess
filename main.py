@@ -410,15 +410,24 @@ def spellcheck(message):
   wrongWords = [words for words in wrongWords if words]
 
   for word in wrongWords:
+
     corrected = False
+    userInput = ""
+    originalWord = word
 
     while not corrected:
       print("-> Word not found in dictionary: " + word)
       print("Possible candidates are: ")
       listCandidates = list(spell.candidates(word))
 
+      if userInput:
+        listCandidates = [userInput] + listCandidates
+
       for idx, candidate in enumerate(listCandidates):
-        print("\t" + str(idx+1) + ": " + candidate)
+        print("\t" + str(idx+1) + ": " + candidate, end='')
+        if userInput and idx == 0:
+          print(" (your last input)")
+        print()
 
       print()
       userInput = input("Select word or write a different word \n" + \
@@ -428,13 +437,13 @@ def spellcheck(message):
         idx = int(userInput)
         if idx > 0:
           newWord = listCandidates[idx-1]
-          wrongReg = re.compile(re.escape(word), re.IGNORECASE)
+          wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
           message = wrongReg.sub(newWord, message)
         corrected = True
       except ValueError:
         newCandidates = spell.unknown([userInput])
         if not newCandidates:
-          wrongReg = re.compile(re.escape(word), re.IGNORECASE)
+          wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
           message = wrongReg.sub(userInput, message)
           corrected = True
         else:

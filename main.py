@@ -9,8 +9,13 @@ import subprocess
 import shutil
 import argparse
 import os
-
+import re
 import inquirer
+
+try:
+  import spellchecker
+except ModuleNotFoundError:
+  spellchecker = None
 
 def main(args):
 
@@ -23,6 +28,9 @@ def main(args):
     print("There is nothing staged to commit")
     return
 
+  if parameters.Spellcheck == "yes" and not spellchecker:
+    print("The module spellchecker is not installed")
+    return
 
   menuEntry = showMenu(parameters)
 
@@ -41,6 +49,14 @@ def main(args):
   breakingChange = getInput("Breaking change",
                             length=sys.maxsize,
                             blankChar='')[1]
+
+  if parameters.Spellcheck == "yes":
+    print("Starting spellchecking... ")
+    shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
+    longMessage = spellcheck(longMessage, parameters)
+    breakingChange = spellcheck(breakingChange, parameters)
+    print("Spellchecking done")
+    print()
 
   commitMessage = buildCommitMessage(shortMessage,
                                      longMessage,
@@ -127,6 +143,11 @@ def readParameters():
   params["ConfirmCommit"] = paramsFile.get("ConfirmCommit", "yes")
   params["MultipleTypes"] = paramsFile.get("MultipleTypes", "no")
   params["TypesStyle"] = paramsFile.get("TypesStyle", "comma")
+  params["Spellcheck"] = paramsFile.get("Spellcheck", "yes")
+  params["SpellcheckMaxOptions"] = int(paramsFile.get("SpellcheckMaxOptions", 10))
+
+  if params["SpellcheckMaxOptions"] < 1:
+    params["SpellcheckMaxOptions"] = sys.maxsize
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 
@@ -386,6 +407,67 @@ def dumpConfig(params):
   else:
     print("Configuration file already exists")
 
+def spellcheck(message, params):
+
+  spell = spellchecker.SpellChecker()
+  wrongWords = list(spell.unknown(message.split(' ')))
+
+  wrongWords = [words for words in wrongWords if words]
+
+  for word in wrongWords:
+
+    corrected = False
+    userInput = ""
+    userWord = ""
+    originalWord = word
+
+    while not corrected:
+      print("-> Word not found in dictionary: " + word)
+      print("Possible candidates are: ")
+      listCandidates = list(spell.candidates(word))
+      listCandidates = listCandidates[:params.SpellcheckMaxOptions]
+
+      listCandidates = [candidate for candidate in listCandidates if candidate != word]
+
+      if userInput:
+        userWord = userInput
+        listCandidates = [userWord] + listCandidates
+
+      for idx, candidate in enumerate(listCandidates):
+        print("\t" + str(idx+1) + ": " + candidate, end='')
+        if userWord and idx == 0:
+          print(" (your last input)")
+        print()
+
+      if len(listCandidates) == 0:
+        print("\tNo suitable option was found")
+
+      print()
+      userInput = input("Select word or write a different word \n" + \
+                        "(type -1 to keep the original word: " + originalWord + "\n-> ")
+
+      try:
+        idx = int(userInput)
+        if idx > len(listCandidates):
+          print("Please insert a number between 1 and " + str(len(listCandidates)))
+          userInput = ""
+          input("Press ENTER to continue")
+          continue
+        if idx > 0:
+          newWord = listCandidates[idx-1]
+          wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
+          message = wrongReg.sub(newWord, message)
+        corrected = True
+      except ValueError:
+        newCandidates = spell.unknown([userInput])
+        if not newCandidates:
+          wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
+          message = wrongReg.sub(userInput, message)
+          corrected = True
+        else:
+          word = userInput
+
+  return message
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--config", action="store_true", default=False)

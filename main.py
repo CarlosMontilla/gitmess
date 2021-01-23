@@ -50,7 +50,7 @@ def main(args):
 
   commit(commitMessage, parameters)
 
-  return 0
+  return
 
 
 ## ----------------------------------------------------------------------------

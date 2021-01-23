@@ -56,6 +56,7 @@ def main(args):
     longMessage = spellcheck(longMessage, parameters)
     breakingChange = spellcheck(breakingChange, parameters)
     print("Spellchecking done")
+    print()
 
   commitMessage = buildCommitMessage(shortMessage,
                                      longMessage,

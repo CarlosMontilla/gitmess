@@ -35,7 +35,7 @@ def main(args):
   menuEntry = showMenu(parameters)
 
   scope = getInput("Scope",
-                   length=parameters.ScopeLength,
+                   length=parameters.ScopeLength+7,
                    blankChar=parameters.BlankChar)[1]
 
   if scope:

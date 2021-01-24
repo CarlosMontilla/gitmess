@@ -10,6 +10,7 @@ import shutil
 import argparse
 import os
 import re
+import string
 import inquirer
 
 try:
@@ -432,7 +433,8 @@ def dumpConfig(params):
 def spellcheck(message, params):
 
   spell = spellchecker.SpellChecker()
-  wrongWords = list(spell.unknown(message.split(' ')))
+  noPunctuation = message.translate(str.maketrans('', '', string.punctuation))
+  wrongWords = list(spell.unknown(noPunctuation.split(' ')))
 
   wrongWords = [words for words in wrongWords if words]
 

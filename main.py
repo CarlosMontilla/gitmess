@@ -67,6 +67,17 @@ def main(args):
     print("Spellchecking done")
     print()
 
+  while len(shortMessage[0] + shortMessage[1]) > parameters.MaxLength:
+    print("Length of corrected title is greater than maximum length allowed")
+    print("Press enter to change it")
+    input()
+    shortMessage = getInput(prefix=shortMessagePrefix,
+                            length=parameters.MaxLength,
+                            blankChar=parameters.BlankChar,
+                            word=shortMessage[1])
+    shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
+
+
   commitMessage = buildCommitMessage(shortMessage,
                                      longMessage,
                                      issueCode,
@@ -260,7 +271,7 @@ def getChar():
 
 
 
-def getInput(prefix="", length=80, blankChar='_'):
+def getInput(prefix="", length=80, blankChar='_', word=""):
   """
 
   Builds the prompt for the short message
@@ -284,10 +295,11 @@ def getInput(prefix="", length=80, blankChar='_'):
   prefix += ": "
   lenPrefix = len(prefix)
 
-  word = ""
   cursorPos = lenPrefix
 
-  messageLine = prefix + (length - len(word) - lenPrefix) * blankChar
+  word = word[:(length-len(prefix))]
+
+  messageLine = prefix + word + (length - len(word) - lenPrefix) * blankChar
   maxLengthMessage = len(messageLine)
   (nlines, cursorLine) = printMessageWrapped(messageLine, lenPrefix)
 

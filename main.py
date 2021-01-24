@@ -33,57 +33,100 @@ def main(args):
     print("The module spellchecker is not installed")
     return
 
-  menuEntry = showMenu(parameters)
+  readyToCommit = False
+  shortMessage = ("", "")
+  longMessage = ""
+  scope = ""
+  issueCode = ""
+  breakingChange = ""
+  types = []
+  while not readyToCommit:
 
-  scope = getInput("Scope",
-                   length=parameters.ScopeLength+7,
-                   blankChar=parameters.BlankChar)[1]
+    types, menuEntry = showMenu(parameters, types)
 
-  if scope:
-    shortMessagePrefix = menuEntry + "(" + scope + ")"
-  else:
-    shortMessagePrefix = menuEntry
+    scope = getInput("Scope",
+                     length=parameters.ScopeLength+7,
+                     blankChar=parameters.BlankChar,
+                     word=scope)[1]
 
-  shortMessage = getInput(prefix=shortMessagePrefix,
-                          length=parameters.MaxLength,
-                          blankChar=parameters.BlankChar)
+    if scope:
+      shortMessagePrefix = menuEntry + "(" + scope + ")"
+    else:
+      shortMessagePrefix = menuEntry
 
-  longMessage = getInput("Longer description",
-                         length=sys.maxsize,
-                         blankChar='')[1]
-
-  issueCode = getInput("Issue code",
-                       length=sys.maxsize,
-                       blankChar='')[1]
-
-  breakingChange = getInput("Breaking change",
-                            length=sys.maxsize,
-                            blankChar='')[1]
-
-  if parameters.Spellcheck == "yes":
-    print("Starting spellchecking... ")
-    shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
-    longMessage = spellcheck(longMessage, parameters)
-    breakingChange = spellcheck(breakingChange, parameters)
-    print("Spellchecking done")
-    print()
-
-  while len(shortMessage[0] + shortMessage[1]) > parameters.MaxLength:
-    print("Length of corrected title is greater than maximum length allowed")
-    print("Press enter to change it")
-    input()
     shortMessage = getInput(prefix=shortMessagePrefix,
                             length=parameters.MaxLength,
                             blankChar=parameters.BlankChar,
                             word=shortMessage[1])
-    shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
+
+    longMessage = getInput("Longer description",
+                           length=sys.maxsize,
+                           blankChar='',
+                           word=longMessage)[1]
+
+    issueCode = getInput("Issue code",
+                         length=sys.maxsize,
+                         blankChar='',
+                         word=issueCode)[1]
+
+    breakingChange = getInput("Breaking change",
+                              length=sys.maxsize,
+                              blankChar='',
+                              word=breakingChange)[1]
+
+    if parameters.Spellcheck == "yes":
+      print("Starting spellchecking... ")
+      shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
+      longMessage = spellcheck(longMessage, parameters)
+      breakingChange = spellcheck(breakingChange, parameters)
+      print("Spellchecking done")
+      print()
+
+    while len(shortMessage[0] + shortMessage[1]) > parameters.MaxLength:
+      print("Length of corrected title is greater than maximum length allowed")
+      print("Press enter to change it")
+      input()
+      shortMessage = getInput(prefix=shortMessagePrefix,
+                              length=parameters.MaxLength,
+                              blankChar=parameters.BlankChar,
+                              word=shortMessage[1])
+      shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
 
 
-  commitMessage = buildCommitMessage(shortMessage,
-                                     longMessage,
-                                     issueCode,
-                                     breakingChange,
-                                     parameters)
+    commitMessage = buildCommitMessage(shortMessage,
+                                       longMessage,
+                                       issueCode,
+                                       breakingChange,
+                                       parameters)
+
+    if parameters.ConfirmCommit == "yes":
+
+      headerLength = max(parameters.MaxLength, parameters.WrapLength)
+
+      print('='*headerLength)
+      print("COMMIT MESSAGE")
+      print("="*headerLength)
+
+      print("\n" + commitMessage + "\n")
+      print("="*headerLength)
+
+      shouldCommit = inquirer.prompt(
+        [inquirer.List('confirm',
+                       message='Do you want to commit with the above message?',
+                       choices=['yes', 'edit', 'cancel'],
+                       default='edit'),]
+      )['confirm']
+
+      if shouldCommit == "yes":
+        readyToCommit = True
+      elif shouldCommit == "edit":
+        shouldCommit == False
+      else:
+        return
+
+    else:
+      readyToCommit = True
+
 
   commit(commitMessage, parameters)
 
@@ -176,7 +219,7 @@ def readParameters():
   return tupleConstructor(**params)
 
 
-def showMenu(params):
+def showMenu(params, defaults=[]):
   """
 
   Shows the menu checkbox list to choose the commit type
@@ -201,11 +244,14 @@ def showMenu(params):
     menuType = inquirer.List
     menuMessage = "\033[FSelect the type of change you are committing " + \
       "(Press ENTER to select)\r\n"
+    if defaults:
+      defaults = defaults[0]
 
   questions = [
   menuType('type',
            message=menuMessage,
-           choices=menuQuestions)
+           choices=menuQuestions,
+           default=defaults)
   ]
 
   print()
@@ -224,7 +270,7 @@ def showMenu(params):
     for commitType in choices:
       formattedTypes += "[" + commitType + "]"
 
-  return formattedTypes
+  return choices, formattedTypes
 
 
 def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
@@ -299,10 +345,11 @@ def getInput(prefix="", length=80, blankChar='_', word=""):
   cursorPos = lenPrefix
 
   word = word[:(length-len(prefix))]
+  cursorPos += len(word)
 
   messageLine = prefix + word + (length - len(word) - lenPrefix) * blankChar
   maxLengthMessage = len(messageLine)
-  (nlines, cursorLine) = printMessageWrapped(messageLine, lenPrefix)
+  (nlines, cursorLine) = printMessageWrapped(messageLine, cursorPos)
 
   escapeNext = 0
   while True:
@@ -392,28 +439,7 @@ def commit(message, params):
 
   """
 
-  if params.ConfirmCommit == "yes":
-
-    headerLength = max(params.MaxLength, params.WrapLength)
-
-    print('='*headerLength)
-    print("COMMIT MESSAGE")
-    print("="*headerLength)
-
-    print("\n" + message + "\n")
-    print("="*headerLength)
-
-    shouldCommit = inquirer.prompt(
-    [inquirer.List('confirm',
-                  message='Do you want to commit with the above message?',
-                  choices=['yes', 'no'],
-                  default='no'),]
-    )['confirm']
-  else:
-    shouldCommit = "yes"
-
-  if shouldCommit == "yes":
-    subprocess.run(["git", "commit", "--message", message], check=True)
+  subprocess.run(["git", "commit", "--message", message], check=True)
 
 def dumpConfig(params):
   paramsFilename = ".gitmess"

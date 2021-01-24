@@ -39,10 +39,10 @@ def main(args):
   scope = ""
   issueCode = ""
   breakingChange = ""
-
+  types = []
   while not readyToCommit:
 
-    menuEntry = showMenu(parameters)
+    types, menuEntry = showMenu(parameters, types)
 
     scope = getInput("Scope",
                      length=parameters.ScopeLength+7,
@@ -219,7 +219,7 @@ def readParameters():
   return tupleConstructor(**params)
 
 
-def showMenu(params):
+def showMenu(params, defaults=[]):
   """
 
   Shows the menu checkbox list to choose the commit type
@@ -244,11 +244,14 @@ def showMenu(params):
     menuType = inquirer.List
     menuMessage = "\033[FSelect the type of change you are committing " + \
       "(Press ENTER to select)\r\n"
+    if defaults:
+      defaults = defaults[0]
 
   questions = [
   menuType('type',
            message=menuMessage,
-           choices=menuQuestions)
+           choices=menuQuestions,
+           default=defaults)
   ]
 
   print()
@@ -267,7 +270,7 @@ def showMenu(params):
     for commitType in choices:
       formattedTypes += "[" + commitType + "]"
 
-  return formattedTypes
+  return choices, formattedTypes
 
 
 def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):

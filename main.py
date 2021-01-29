@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from collections import namedtuple
+import time
 import termios
 import sys
 import tty
@@ -424,6 +425,7 @@ def printMessageWrapped(message, cursorPos):
   cursorLine = cursorPos // cols
   cursorPosLine = cursorPos % cols
 
+  # Break the message into lines
   lines = [message[idx*cols:(idx+1)*cols] for idx in range(nlines)]
 
   # First print the entire message
@@ -432,12 +434,12 @@ def printMessageWrapped(message, cursorPos):
   #bring back cursor to the beginning of message
   print('\r' + backline*(nlines-1), end="")
 
+  # Print all lines coming before cursor (if there are any)
+  if cursorLine > 0:
+    print("\n".join(lines[:cursorLine]), end="\n", flush=True)
+
   #print until cursor
-  for idx in range(cursorLine+1):
-    if idx == (cursorLine):
-      print(lines[idx][:cursorPosLine], end="", flush=True)
-    else:
-      print(lines[idx], end='\n')
+  print(lines[cursorLine][:cursorPosLine], end="", flush=True)
 
   return (nlines, cursorLine)
 

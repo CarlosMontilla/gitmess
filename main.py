@@ -34,22 +34,23 @@ def main(args):
     return
 
   readyToCommit = False
-  shortMessage = ("", "")
-  longMessage = ""
-  scope = ""
-  issueCode = ""
-  breakingChange = ""
+  title = ["", ""]
+  description = ["Description", ""]
+  scope = ["Scope", ""]
+  issueCode = ["Issue Code", ""]
+  breakingChange = ["BREAKING CHANGES", ""]
   types = []
+
   while not readyToCommit:
 
     ## Show menu with commit types
     types = showMenu(parameters, types)
 
     ## Ask for commit scope
-    scope = getInput("Scope",
+    scope = getInput(scope[0],
                      length=parameters.ScopeLength+7,
                      blankChar=parameters.BlankChar,
-                     inputText=scope)[1]
+                     inputText=scope[1])
 
     ## Build the title message prefix
     if parameters.TypesStyle == "comma":
@@ -60,52 +61,52 @@ def main(args):
         typesPrefix += "[" + commitType + "]"
 
     ## If scope is not empty, add it to the title prefix
-    if scope:
-      shortMessagePrefix = typesPrefix + "(" + scope + ")"
+    if scope[1]:
+      titlePrefix = typesPrefix + "(" + scope[1] + ")"
     else:
-      shortMessagePrefix = typesPrefix
+      titlePrefix = typesPrefix
 
-    shortMessage = getInput(prefix=shortMessagePrefix,
-                            length=parameters.MaxLength,
-                            blankChar=parameters.BlankChar,
-                            inputText=shortMessage[1])
+    title = getInput(prefix=titlePrefix,
+                     length=parameters.MaxLength,
+                     blankChar=parameters.BlankChar,
+                     inputText=title[1])
 
-    longMessage = getInput("Longer description",
+    description = getInput(description[0],
                            length=sys.maxsize,
                            blankChar='',
-                           inputText=longMessage)[1]
+                           inputText=description[1])
 
-    issueCode = getInput("Issue code",
+    issueCode = getInput(issueCode[0],
                          length=sys.maxsize,
                          blankChar='',
-                         inputText=issueCode)[1]
+                         inputText=issueCode[1])
 
-    breakingChange = getInput("Breaking change",
+    breakingChange = getInput(breakingChange[0],
                               length=sys.maxsize,
                               blankChar='',
-                              inputText=breakingChange)[1]
+                              inputText=breakingChange[1])
 
     if parameters.Spellcheck == "yes":
       print("Starting spellchecking... ")
-      shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
-      longMessage = spellcheck(longMessage, parameters)
-      breakingChange = spellcheck(breakingChange, parameters)
+      title[1] = spellcheck(title[1], parameters)
+      description[1] = spellcheck(description[1], parameters)
+      breakingChange[1] = spellcheck(breakingChange[1], parameters)
       print("Spellchecking done")
       print()
 
-    while len(shortMessage[0] + shortMessage[1]) > parameters.MaxLength:
+    while len(title[0] + title[1]) > parameters.MaxLength:
       print("Length of corrected title is greater than maximum length allowed")
       print("Press enter to change it")
       input()
-      shortMessage = getInput(prefix=shortMessagePrefix,
-                              length=parameters.MaxLength,
-                              blankChar=parameters.BlankChar,
-                              inputText=shortMessage[1])
-      shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
+      title = getInput(prefix=title[0],
+                       length=parameters.MaxLength,
+                       blankChar=parameters.BlankChar,
+                       inputText=title[1])
+      title[1] = spellcheck(title[1], parameters)
 
 
-    commitMessage = buildCommitMessage(shortMessage,
-                                       longMessage,
+    commitMessage = buildCommitMessage(title,
+                                       description,
                                        issueCode,
                                        breakingChange,
                                        parameters)
@@ -278,7 +279,7 @@ def showMenu(params, defaults=[]):
   return choices
 
 
-def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
+def buildCommitMessage(title, description, issue, breaking, params):
   """
 
   Builds the final commit message based on all the user inputs.
@@ -286,19 +287,17 @@ def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):
   Returns a string with the final commit message to be used
 
   """
-  message = ""
 
-  message = shortMessage[0] + shortMessage[1]
+  message = title[0] + title[1]
 
-  if longMessage:
-    message += '\n\n' +  '\n'.join(textwrap.wrap(longMessage,
+  if description[1]:
+    message += '\n\n' +  '\n'.join(textwrap.wrap(description[1],
                                                  width=params.WrapLength))
+  if issue[1]:
+    message += "\n\n" + issue[0] + ": " + issue[1]
 
-  if issue:
-    message += "\n\n" + 'Issue: ' + issue
-
-  if breaking:
-    message += "\n\n" + "BREAKING CHANGE: " + breaking
+  if breaking[1]:
+    message += "\n\n" + breaking[0] + ": " + breaking[1]
 
   return message
 
@@ -411,7 +410,7 @@ def getInput(prefix="", length=80, blankChar='_', inputText=""):
 
   # Print enough new line so the new input does not overlap with this input
   print('\n'*(nlines - cursorLine), flush=True)
-  return (prefix, userInput)
+  return [prefix, userInput]
 
 
 def printMessageWrapped(message, cursorPos):

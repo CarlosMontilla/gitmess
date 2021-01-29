@@ -468,9 +468,12 @@ def dumpConfig(params):
 def spellcheck(message, params):
 
   spell = spellchecker.SpellChecker()
-  noPunctuation = message.translate(str.maketrans('', '', string.punctuation))
-  wrongWords = list(spell.unknown(noPunctuation.split(' ')))
 
+  ## Remove punctuation from text
+  noPunctuation = message.translate(str.maketrans('', '', string.punctuation))
+
+  ## Remove any empty string that might appear in the list
+  wrongWords = list(spell.unknown(noPunctuation.split(' ')))
   wrongWords = [words for words in wrongWords if words]
 
   for word in wrongWords:
@@ -481,11 +484,12 @@ def spellcheck(message, params):
     originalWord = word
 
     while not corrected:
+
       print("-> Word not found in dictionary: " + word)
       print("Possible candidates are: ")
+
       listCandidates = list(spell.candidates(word))
       listCandidates = listCandidates[:params.SpellcheckMaxOptions]
-
       listCandidates = [candidate for candidate in listCandidates if candidate != word]
 
       if userInput:
@@ -495,6 +499,7 @@ def spellcheck(message, params):
       for idx, candidate in enumerate(listCandidates):
         print("\t" + str(idx+1) + ": " + candidate, end='')
         if userWord and idx == 0:
+          print()
           print(" (your last input)")
         print()
 
@@ -503,7 +508,7 @@ def spellcheck(message, params):
 
       print()
       userInput = input("Select word or write a different word \n" + \
-                        "(type -1 to keep the original word: " + originalWord + "\n-> ")
+                        "(type -1 to keep the original word: " + originalWord + ")\n-> ")
 
       try:
         idx = int(userInput)

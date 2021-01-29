@@ -47,7 +47,7 @@ def main(args):
     scope = getInput("Scope",
                      length=parameters.ScopeLength+7,
                      blankChar=parameters.BlankChar,
-                     word=scope)[1]
+                     inputText=scope)[1]
 
     if scope:
       shortMessagePrefix = menuEntry + "(" + scope + ")"
@@ -57,22 +57,22 @@ def main(args):
     shortMessage = getInput(prefix=shortMessagePrefix,
                             length=parameters.MaxLength,
                             blankChar=parameters.BlankChar,
-                            word=shortMessage[1])
+                            inputText=shortMessage[1])
 
     longMessage = getInput("Longer description",
                            length=sys.maxsize,
                            blankChar='',
-                           word=longMessage)[1]
+                           inputText=longMessage)[1]
 
     issueCode = getInput("Issue code",
                          length=sys.maxsize,
                          blankChar='',
-                         word=issueCode)[1]
+                         inputText=issueCode)[1]
 
     breakingChange = getInput("Breaking change",
                               length=sys.maxsize,
                               blankChar='',
-                              word=breakingChange)[1]
+                              inputText=breakingChange)[1]
 
     if parameters.Spellcheck == "yes":
       print("Starting spellchecking... ")
@@ -89,7 +89,7 @@ def main(args):
       shortMessage = getInput(prefix=shortMessagePrefix,
                               length=parameters.MaxLength,
                               blankChar=parameters.BlankChar,
-                              word=shortMessage[1])
+                              inputText=shortMessage[1])
       shortMessage = (shortMessage[0], spellcheck(shortMessage[1], parameters))
 
 
@@ -318,7 +318,7 @@ def getChar():
 
 
 
-def getInput(prefix="", length=80, blankChar='_', word=""):
+def getInput(prefix="", length=80, blankChar='_', inputText=""):
   """
 
   Builds the prompt for the short message
@@ -344,64 +344,69 @@ def getInput(prefix="", length=80, blankChar='_', word=""):
 
   cursorPos = lenPrefix
 
-  word = word[:(length-len(prefix))]
-  cursorPos += len(word)
+  userInput = inputText[:(length-len(prefix))]
+  cursorPos += len(userInput)
 
-  messageLine = prefix + word + (length - len(word) - lenPrefix) * blankChar
+  messageLine = prefix + userInput + (length - len(userInput) - lenPrefix) * blankChar
   maxLengthMessage = len(messageLine)
+
   (nlines, cursorLine) = printMessageWrapped(messageLine, cursorPos)
 
   escapeNext = 0
+
   while True:
+
     char = str(getChar())
 
+    ## If the arrow key are pressed they produced first a escape sequence and
+    ## then the arrow key code, so this handles that
     if escapeNext > 0:
       escapeNext -= 1
       if ord(char) == 68 and (cursorPos > lenPrefix):
         cursorPos -= 1
-      elif (ord(char) == 67) and (cursorPos < lenPrefix + len(word)):
+      elif (ord(char) == 67) and (cursorPos < lenPrefix + len(userInput)):
         cursorPos +=1
       else:
         continue
-    elif ord(char) == 127:
+    elif ord(char) == 127: ## 127 = backspace -> erase character
       # Remove character if backspace
+
       cursorPosWord = cursorPos - lenPrefix
 
       if cursorPosWord > 0:
-        word = word[:(cursorPosWord-1)] + word[(cursorPosWord):]
+        userInput = userInput[:(cursorPosWord-1)] + userInput[(cursorPosWord):]
         cursorPos -= 1
 
-    elif ord(char) == 13:
-      # break if enter pressed
+    elif ord(char) == 13: ## 13: enter. Input finished
       break
-    elif ord(char) == 27:
+    elif ord(char) == 27: ## 27: first character sent when arrow key pressed
       escapeNext = 2
-    elif ord(char) == 3:
+    elif ord(char) == 3: ## Ctrl+c pressed -> interrupt
       raise KeyboardInterrupt
-    elif len(word) + lenPrefix == length:
+    elif len(userInput) + lenPrefix == length: ## If already at the end, don't do anything
       continue
-    elif ord(char) > 30:
+    elif ord(char) > 30: #Write only letters numbers and symbols
       cursorPosWord = cursorPos - lenPrefix
-      word = word[:cursorPosWord] + char + word[cursorPosWord:]
+      userInput = userInput[:cursorPosWord] + char + userInput[cursorPosWord:]
       cursorPos += 1
 
     # Bring back cursor to the very beginning of the input line
     print('\r', end='')
     print(backline*cursorLine, end='')
 
-    messageLine = prefix + word + (length - len(word) - lenPrefix) * blankChar
+    messageLine = prefix + userInput + (length - len(userInput) - lenPrefix) * blankChar
 
     # Clean any old input before writing new line
     if len(messageLine) > maxLengthMessage:
       maxLengthMessage = len(messageLine)
     printMessageWrapped(' '*maxLengthMessage, 0)
 
-
+    # Print the user input in a formatted way
     (nlines, cursorLine) = printMessageWrapped(messageLine, cursorPos)
 
   # Print enough new line so the new input does not overlap with this input
   print('\n'*(nlines - cursorLine), flush=True)
-  return (prefix, word)
+  return (prefix, userInput)
 
 
 def printMessageWrapped(message, cursorPos):

@@ -42,17 +42,28 @@ def main(args):
   types = []
   while not readyToCommit:
 
-    types, menuEntry = showMenu(parameters, types)
+    ## Show menu with commit types
+    types = showMenu(parameters, types)
 
+    ## Ask for commit scope
     scope = getInput("Scope",
                      length=parameters.ScopeLength+7,
                      blankChar=parameters.BlankChar,
                      inputText=scope)[1]
 
+    ## Build the title message prefix
+    if parameters.TypesStyle == "comma":
+      typesPrefix = ','.join(types)
+    elif parameters.TypesStyle == "brackets":
+      typesPrefix = ""
+      for commitType in types:
+        typesPrefix += "[" + commitType + "]"
+
+    ## If scope is not empty, add it to the title prefix
     if scope:
-      shortMessagePrefix = menuEntry + "(" + scope + ")"
+      shortMessagePrefix = typesPrefix + "(" + scope + ")"
     else:
-      shortMessagePrefix = menuEntry
+      shortMessagePrefix = typesPrefix
 
     shortMessage = getInput(prefix=shortMessagePrefix,
                             length=parameters.MaxLength,
@@ -234,7 +245,8 @@ def showMenu(params, defaults=[]):
 
   """
 
-  menuQuestions = [ (label + ": " + text, label) for (label, text) in params.menu ]
+  menuQuestions = [ (label + ": " + text, label)
+                    for (label, text) in params.menu ]
 
   if params.MultipleTypes == "yes":
     menuType = inquirer.Checkbox
@@ -263,14 +275,7 @@ def showMenu(params, defaults=[]):
   if isinstance(choices, str):
     choices = [choices]
 
-  if params.TypesStyle == "comma":
-    formattedTypes = ','.join(choices)
-  elif params.TypesStyle == "brackets":
-    formattedTypes = ""
-    for commitType in choices:
-      formattedTypes += "[" + commitType + "]"
-
-  return choices, formattedTypes
+  return choices
 
 
 def buildCommitMessage(shortMessage, longMessage, issue, breaking, params):

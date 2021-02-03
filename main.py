@@ -232,7 +232,7 @@ def readParameters():
   return tupleConstructor(**params)
 
 
-def showMenu(params, defaults=[]):
+def showMenu(params, defaults=None):
   """
 
   Shows the menu checkbox list to choose the commit type

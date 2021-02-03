@@ -149,6 +149,17 @@ def main(args):
 ## ----------------------------------------------------------------------------
 
 def somethingToCommit():
+  """
+  Check if there is something staged for commit in the repository
+
+  Parameters
+  ----------
+
+  Returns
+  -------
+  bool
+    True if there is something staged to be committed, False otherwise
+  """
   return subprocess.run(['git', 'diff', '--cached', '--quiet'],
                         check=False).returncode == 1
 

@@ -118,21 +118,21 @@ def main(args):
 
       print('='*headerLength)
       print("COMMIT MESSAGE")
-      print("="*headerLength)
+      print('='*headerLength)
 
-      print("\n" + commitMessage + "\n")
-      print("="*headerLength)
+      print('\n' + commitMessage + '\n')
+      print('='*headerLength)
 
       shouldCommit = inquirer.prompt(
         [inquirer.List('confirm',
-                       message='Do you want to commit with the above message?',
+                       message="Do you want to commit with the above message?",
                        choices=['yes', 'edit', 'cancel'],
                        default='edit'),]
       )['confirm']
 
-      if shouldCommit == "yes":
+      if shouldCommit == 'yes':
         readyToCommit = True
-      elif shouldCommit == "edit":
+      elif shouldCommit == 'edit':
         shouldCommit == False
       else:
         return
@@ -149,7 +149,7 @@ def main(args):
 ## ----------------------------------------------------------------------------
 
 def somethingToCommit():
-  return subprocess.run(["git", "diff", "--cached", "--quiet"],
+  return subprocess.run(['git', 'diff', '--cached', '--quiet'],
                         check=False).returncode == 1
 
 def readParameters():
@@ -166,16 +166,16 @@ def readParameters():
 
   """
 
-  paramsFilename = ".gitmess"
-  gitRootDirectory = subprocess.run(["git", "rev-parse",  "--show-toplevel"],
+  paramsFilename = '.gitmess'
+  gitRootDirectory = subprocess.run(['git', 'rev-parse',  '--show-toplevel'],
                                     capture_output=True, check=True,
                                     ).stdout.decode('utf-8').rstrip('\n')
 
 
   paramsFile = {}
-  paramsFile["AddType"] = []
+  paramsFile['AddType'] = []
   try:
-    paramsfid = open(gitRootDirectory + "/" + paramsFilename, 'r')
+    paramsfid = open(gitRootDirectory + '/' + paramsFilename, 'r')
 
     for line in paramsfid:
       try:
@@ -184,7 +184,7 @@ def readParameters():
         key = line.strip('\n')
         value = ''
 
-      if key == "AddType":
+      if key == 'AddType':
         (commitType, description) = value.split(' ', maxsplit=1)
         paramsFile[key].append((commitType, description))
       else:
@@ -196,36 +196,36 @@ def readParameters():
   params = {}
   params['menu'] = []
 
-  if ("UseDefaultMenu" in paramsFile) and \
-     (paramsFile["UseDefaultMenu"] == "yes") or \
-     ("UseDefaultMenu" not in paramsFile):
+  if ('UseDefaultMenu' in paramsFile) and \
+     (paramsFile['UseDefaultMenu'] == 'yes') or \
+     ('UseDefaultMenu' not in paramsFile):
 
 
-    params['menu'] = [("feat", "New feature"),
-                      ("fix", "Bug fix"),
-                      ("chore", "Build process or auxiliary tool change"),
-                      ("docs", "Documentary only changes"),
-                      ("refactor", "Code that neither changes or add a feature"),
-                      ("style", "Markup, white-space, formatting..."),
-                      ("perf", "Code change that improves performance"),
-                      ("test", "Adding tests"),
-                      ("release", "Release version")]
+    params['menu'] = [('feat', "New feature"),
+                      ('fix', "Bug fix"),
+                      ('chore', "Build process or auxiliary tool change"),
+                      ('docs', "Documentary only changes"),
+                      ('refactor', "Code that neither changes or add a feature"),
+                      ('style', "Markup, white-space, formatting..."),
+                      ('perf', "Code change that improves performance"),
+                      ('test', "Adding tests"),
+                      ('release', "Release version")]
 
   params['menu'].extend(paramsFile['AddType'])
 
-  params["UseDefaultMenu"] = paramsFile.get("UseDefaultMenu", "yes")
-  params['MaxLength'] = int(paramsFile.get("MaxLength", 70))
-  params['WrapLength'] = int(paramsFile.get("WrapLength", 80))
-  params['BlankChar'] = paramsFile.get("BlankChar", "_")[0]
-  params["ConfirmCommit"] = paramsFile.get("ConfirmCommit", "yes")
-  params["MultipleTypes"] = paramsFile.get("MultipleTypes", "no")
-  params["TypesStyle"] = paramsFile.get("TypesStyle", "comma")
-  params["Spellcheck"] = paramsFile.get("Spellcheck", "yes")
-  params["SpellcheckMaxOptions"] = int(paramsFile.get("SpellcheckMaxOptions", 10))
-  params["ScopeLength"] = int(paramsFile.get("ScopeLength", 20))
+  params['UseDefaultMenu'] = paramsFile.get('UseDefaultMenu', 'yes')
+  params['MaxLength'] = int(paramsFile.get('MaxLength', 70))
+  params['WrapLength'] = int(paramsFile.get('WrapLength', 80))
+  params['BlankChar'] = paramsFile.get('BlankChar', '_')[0]
+  params['ConfirmCommit'] = paramsFile.get('ConfirmCommit', 'yes')
+  params['MultipleTypes'] = paramsFile.get('MultipleTypes', 'no')
+  params['TypesStyle'] = paramsFile.get('TypesStyle', 'comma')
+  params['Spellcheck'] = paramsFile.get('Spellcheck', 'yes')
+  params['SpellcheckMaxOptions'] = int(paramsFile.get('SpellcheckMaxOptions', 10))
+  params['ScopeLength'] = int(paramsFile.get('ScopeLength', 20))
 
-  if params["SpellcheckMaxOptions"] < 1:
-    params["SpellcheckMaxOptions"] = sys.maxsize
+  if params['SpellcheckMaxOptions'] < 1:
+    params['SpellcheckMaxOptions'] = sys.maxsize
 
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 
@@ -247,10 +247,10 @@ def showMenu(params, defaults=None):
 
   """
 
-  menuQuestions = [ (label + ": " + text, label)
+  menuQuestions = [ (label + ': ' + text, label)
                     for (label, text) in params.menu ]
 
-  if params.MultipleTypes == "yes":
+  if params.MultipleTypes == 'yes':
     menuType = inquirer.Checkbox
     menuMessage = "Select the type(s) of change you are committing " + \
       "(Press SPACE to select)"
@@ -295,10 +295,10 @@ def buildCommitMessage(title, description, issue, breaking, params):
     message += '\n\n' +  '\n'.join(textwrap.wrap(description[1],
                                                  width=params.WrapLength))
   if issue[1]:
-    message += "\n\n" + issue[0] + ": " + issue[1]
+    message += '\n\n' + issue[0] + ': ' + issue[1]
 
   if breaking[1]:
-    message += "\n\n" + breaking[0] + ": " + breaking[1]
+    message += '\n\n' + breaking[0] + ': ' + breaking[1]
 
   return message
 
@@ -323,7 +323,7 @@ def getChar():
 
 
 
-def getInput(prefix="", length=80, blankChar='_', inputText=""):
+def getInput(prefix='', length=80, blankChar='_', inputText=''):
   """
 
   Builds the prompt for the short message
@@ -342,9 +342,9 @@ def getInput(prefix="", length=80, blankChar='_', inputText=""):
 
   """
 
-  backline="\033[F"
+  backline='\033[F'
 
-  prefix += ": "
+  prefix += ': '
   lenPrefix = len(prefix)
 
   cursorPos = lenPrefix
@@ -419,7 +419,7 @@ def printMessageWrapped(message, cursorPos):
   terminalSize = shutil.get_terminal_size()
   margin = 5
   cols = terminalSize.columns - margin
-  backline = "\033[F"
+  backline = '\033[F'
 
   nlines = len(message) // cols + 1
   cursorLine = cursorPos // cols
@@ -429,17 +429,17 @@ def printMessageWrapped(message, cursorPos):
   lines = [message[idx*cols:(idx+1)*cols] for idx in range(nlines)]
 
   # First print the entire message
-  print('\n'.join(lines), end="")
+  print('\n'.join(lines), end='')
 
   #bring back cursor to the beginning of message
-  print('\r' + backline*(nlines-1), end="")
+  print('\r' + backline*(nlines-1), end='')
 
   # Print all lines coming before cursor (if there are any)
   if cursorLine > 0:
-    print("\n".join(lines[:cursorLine]), end="\n", flush=True)
+    print('\n'.join(lines[:cursorLine]), end='\n', flush=True)
 
   #print until cursor
-  print(lines[cursorLine][:cursorPosLine], end="", flush=True)
+  print(lines[cursorLine][:cursorPosLine], end='', flush=True)
 
   return (nlines, cursorLine)
 
@@ -450,20 +450,20 @@ def commit(message, params):
 
   """
 
-  subprocess.run(["git", "commit", "--message", message], check=True)
+  subprocess.run(['git', 'commit', '--message', message], check=True)
 
 def dumpConfig(params):
-  paramsFilename = ".gitmess"
-  gitRootDirectory = subprocess.run(["git", "rev-parse",  "--show-toplevel"],
+  paramsFilename = '.gitmess'
+  gitRootDirectory = subprocess.run(['git', 'rev-parse',  '--show-toplevel'],
                                     capture_output=True, check=True,
                                     ).stdout.decode('utf-8').rstrip('\n')
 
-  filepath = gitRootDirectory + "/" + paramsFilename
+  filepath = gitRootDirectory + '/' + paramsFilename
   if not os.path.isfile(filepath):
     with open(filepath, 'w+') as fid:
       for (key, value) in params._asdict().items():
-        if key != "menu":
-          print(key + " " + str(value), file=fid)
+        if key != 'menu':
+          print(key + ' ' + str(value), file=fid)
   else:
     print("Configuration file already exists")
 
@@ -499,7 +499,7 @@ def spellcheck(message, params):
         listCandidates = [userWord] + listCandidates
 
       for idx, candidate in enumerate(listCandidates):
-        print("\t" + str(idx+1) + ": " + candidate, end='')
+        print('\t' + str(idx+1) + ': ' + candidate, end='')
         if userWord and idx == 0:
           print()
           print(" (your last input)")
@@ -534,7 +534,10 @@ def spellcheck(message, params):
           word = userInput
 
   return message
-if __name__ == "__main__":
+
+
+## Main
+if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument("--config", action="store_true", default=False)
+  parser.add_argument('--config', action='store_true', default=False)
   main(parser.parse_args())

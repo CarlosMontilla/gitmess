@@ -471,7 +471,7 @@ def getInput(prefix='', length=80, blankChar='_', inputText=''):
       raise KeyboardInterrupt
     elif len(userInput) + lenPrefix == length: ## If already at the end, don't do anything
       continue
-    elif ord(char) > 30: #Write only letters numbers and symbols
+    elif ord(char) >= 32: #Write only letters numbers and symbols
       cursorPosWord = cursorPos - lenPrefix
       userInput = userInput[:cursorPosWord] + char + userInput[cursorPosWord:]
       cursorPos += 1

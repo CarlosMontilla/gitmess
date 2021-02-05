@@ -173,7 +173,14 @@ def readParameters():
 
   If not file is presented then default values are used
 
-  Returns all the parameters in a namedtuple structure
+  Parameters
+  ----------
+
+
+  Returns
+  -------
+  namedtuple
+    Structure with all the configuration parameters
 
   """
 
@@ -251,10 +258,27 @@ def showMenu(params, defaults=None):
   A menu checkbox list is built and prompted from the menu attribute of the
   parameters.
 
+
+  Parameters
+  ----------
+  params: namedtuple
+    Structure with commit parameters
+  defaults: list
+    Value(s) to be selected by default when prompting the menu
+
+
+  Returns
+  -------
+  list
+    Choice(s) chosen by the user
+
   The function returns a string with the commit types separated by a comma (if
   there are multiple)
 
-  If no type is chosen the method raises a RuntimeError
+  Raises
+  ------
+  RuntimeError
+    If nothing is chosen
 
   """
 
@@ -293,10 +317,25 @@ def showMenu(params, defaults=None):
 
 def buildCommitMessage(title, description, issue, breaking, params):
   """
-
   Builds the final commit message based on all the user inputs.
 
-  Returns a string with the final commit message to be used
+  Parameters
+  ----------
+  title: tuple
+    Tuple of strings with the prefix and the title entered by the user
+  description: tuple
+    Tuple of strings with the prefix and the description entered by the user
+  issue: tuple
+    Tuple of strings with the prefix and the issue code entered by the user
+  breaking: tuple
+    Tuple of strings with the prefix and the breaking changes entered by the user
+  params: namedtuple
+    Structure with the commit parameters
+
+  Returns
+  -------
+  String
+    Message to commit
 
   """
 
@@ -322,7 +361,17 @@ def getChar():
 
   This function read a single character pressed by the user and returns it
 
+
+  Parameters
+  ----------
+
+  Returns
+  -------
+  str
+    The character typed by the user
+
   """
+
   fileDescriptor = sys.stdin.fileno()
   oldSettings = termios.tcgetattr(fileDescriptor)
   try:
@@ -336,20 +385,41 @@ def getChar():
 
 def getInput(prefix='', length=80, blankChar='_', inputText=''):
   """
-
-  Builds the prompt for the short message
+  Builds an input system that checks that the length of the input is smaller
+  than some value.
 
   This function shows the user a prompt line where he/she can type a message,
-  but imposing a maximum number of characters. The message is composed by a
-  prefix, followed by a colon and a space, followed by the user's input. The
-  remaining characters left are shown by a blankChar (which defaults to '_').
-  If the user tries to go above the maximum number of characters, their input
-  is just ignored.
+  but imposing a maximum number of characters. The message is composed of one
+  non-editable string (prefix + ': ') and one editable part where the user
+  writes the input. The sum of the length of both string restricted to be less
+  or equal than the parameter 'length'
 
-  This method accepts backspace for deleting characters, but it does not read
-  the keyboard arrows to move the cursor.
+  Also as the user writes, the inputs get wrapped in multiple lines (if the
+  input is too long) according to the terminal's size
 
-  This method returns the prefix + colon + space + the user's input
+
+  Parameters:
+  -----------
+  prefix: str, optional
+    The non-editable prefix of the user message (Default='')
+  length: int, optional
+    The maximum total length of the input string (Default=80)
+  blankChar: str, optional
+    Character to be used as a placeholder for the empty characters in the message (Default='_')
+  inputText: str, optional
+    Predefined text to be used in the editable section of the user prompt (Default='')
+
+  Returns
+  -------
+  tuple
+    A tuple of 2 strings:
+      1. The non editable part (prefix + ': ')
+      2. The editable part typed by the user
+    The length of the string is equal or less than 'length' parameter
+
+  Raises
+  ------
+  KeyboardInterrupt signal if the user press ctrl+c
 
   """
 
@@ -426,6 +496,28 @@ def getInput(prefix='', length=80, blankChar='_', inputText=''):
 
 
 def printMessageWrapped(message, cursorPos):
+  """
+  Print a wrapped string in the terminal and sets the cursor to a specific
+  location
+
+  The function gets the size of the current terminal and breaks the string
+  into several lines and then prints those lines. Also the cursor is placed in
+  a specific location using the parameters cursorPos
+
+  Parameters
+  ----------
+  message: str
+    The message to be printed on the console
+  cursorPos: int
+    The position where the cursor should be placed. The beginning of the string
+    is 0
+
+  Returns
+  -------
+  tuple
+    Tuple with the total number of lines and the line of the current cursor position
+
+  """
 
   terminalSize = shutil.get_terminal_size()
   margin = 5
@@ -456,14 +548,37 @@ def printMessageWrapped(message, cursorPos):
 
 def commit(message, params):
   """
-
   Runs git to commit staged files with a given message
+
+  Parameters
+  ----------
+  message: str
+    Commit message already formatted
+  params: namedtuple
+    Structure with the commit parameters
+
+  Returns
+  -------
+  None
 
   """
 
   subprocess.run(['git', 'commit', '--message', message], check=True)
 
 def dumpConfig(params):
+  """
+  Create a configuration file with given parameters
+
+  Parameters
+  ----------
+  params: namedtuple
+    Structure with the commit parameters
+
+  Returns
+  -------
+  None
+
+  """
   paramsFilename = '.gitmess'
   gitRootDirectory = subprocess.run(['git', 'rev-parse',  '--show-toplevel'],
                                     capture_output=True, check=True,
@@ -479,6 +594,25 @@ def dumpConfig(params):
     print("Configuration file already exists")
 
 def spellcheck(message, params):
+  """
+  Spell check a given string.
+
+  A simple list is shown to the user and asked to selected a corrected word, or
+  keep the original.
+
+  Parameters
+  ----------
+  message: str
+    The string to be checked
+  params: namedtuple
+    Structure with the commit parameters
+
+  Returns
+  -------
+  str
+    The corrected message
+
+  """
 
   spell = spellchecker.SpellChecker()
 

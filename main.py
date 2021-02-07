@@ -191,10 +191,30 @@ def readParameters():
 
   paramsFullPath = gitRootDirectory + '/' + paramsFilename
 
-  # Dictionary that holds the configuration specified in configuration file
-  paramsFile = {}
-  paramsFile['AddType'] = []
+  defaultMenu = [('feat', "New feature"),
+                 ('fix', "Bug fix"),
+                 ('chore', "Build process or auxiliary tool change"),
+                 ('docs', "Documentary only changes"),
+                 ('refactor', "Code that neither changes or add a feature"),
+                 ('style', "Markup, white-space, formatting..."),
+                 ('perf', "Code change that improves performance"),
+                 ('test', "Adding tests"),
+                 ('release', "Release version")]
 
+  params['UseDefaultMenu'] = 'yes'
+  params['MaxLength'] = 70
+  params['WrapLength'] = 80
+  params['BlankChar'] = '_'
+  params['ConfirmCommit'] = 'yes'
+  params['MultipleTypes'] = 'no'
+  params['TypesStyle'] = 'comma'
+  params['Spellcheck'] = 'yes'
+  params['SpellcheckMaxOptions'] = 10
+  params['ScopeLength'] = 20
+  params['userTypes'] = []
+
+
+  # Dictionary that holds the configuration specified in configuration file
   if os.path.isfile(paramsFullPath):
 
     paramsfid = open(paramsFullPath, 'r')
@@ -220,28 +240,7 @@ def readParameters():
      ('UseDefaultMenu' not in paramsFile):
 
 
-    params['menu'] = [('feat', "New feature"),
-                      ('fix', "Bug fix"),
-                      ('chore', "Build process or auxiliary tool change"),
-                      ('docs', "Documentary only changes"),
-                      ('refactor', "Code that neither changes or add a feature"),
-                      ('style', "Markup, white-space, formatting..."),
-                      ('perf', "Code change that improves performance"),
-                      ('test', "Adding tests"),
-                      ('release', "Release version")]
-
   params['menu'].extend(paramsFile['AddType'])
-
-  params['UseDefaultMenu'] = paramsFile.get('UseDefaultMenu', 'yes')
-  params['MaxLength'] = int(paramsFile.get('MaxLength', 70))
-  params['WrapLength'] = int(paramsFile.get('WrapLength', 80))
-  params['BlankChar'] = paramsFile.get('BlankChar', '_')[0]
-  params['ConfirmCommit'] = paramsFile.get('ConfirmCommit', 'yes')
-  params['MultipleTypes'] = paramsFile.get('MultipleTypes', 'no')
-  params['TypesStyle'] = paramsFile.get('TypesStyle', 'comma')
-  params['Spellcheck'] = paramsFile.get('Spellcheck', 'yes')
-  params['SpellcheckMaxOptions'] = int(paramsFile.get('SpellcheckMaxOptions', 10))
-  params['ScopeLength'] = int(paramsFile.get('ScopeLength', 20))
 
   if params['SpellcheckMaxOptions'] < 1:
     params['SpellcheckMaxOptions'] = sys.maxsize

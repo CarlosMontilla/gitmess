@@ -189,11 +189,15 @@ def readParameters():
                                     capture_output=True, check=True,
                                     ).stdout.decode('utf-8').rstrip('\n')
 
+  paramsFullPath = gitRootDirectory + '/' + paramsFilename
 
+  # Dictionary that holds the configuration specified in configuration file
   paramsFile = {}
   paramsFile['AddType'] = []
-  try:
-    paramsfid = open(gitRootDirectory + '/' + paramsFilename, 'r')
+
+  if os.path.isfile(paramsFullPath):
+
+    paramsfid = open(paramsFullPath, 'r')
 
     for line in paramsfid:
       try:
@@ -207,9 +211,6 @@ def readParameters():
         paramsFile[key].append((commitType, description))
       else:
         paramsFile[key] = value
-  except FileNotFoundError:
-    pass
-
 
   params = {}
   params['menu'] = []
@@ -282,6 +283,7 @@ def showMenu(params, defaults=None):
 
   """
 
+  # Create the text for the menu composed of label: type
   menuQuestions = [ (label + ': ' + text, label)
                     for (label, text) in params.menu ]
 
@@ -309,6 +311,7 @@ def showMenu(params, defaults=None):
   if len(choices) == 0:
     raise RuntimeError("Please choice a type")
 
+  # if only one choice, convert it to list anyways
   if isinstance(choices, str):
     choices = [choices]
 
@@ -423,6 +426,7 @@ def getInput(prefix='', length=80, blankChar='_', inputText=''):
 
   """
 
+  ## TODO Set to global variable
   backline='\033[F'
 
   prefix += ': '
@@ -522,6 +526,8 @@ def printMessageWrapped(message, cursorPos):
   terminalSize = shutil.get_terminal_size()
   margin = 5
   cols = terminalSize.columns - margin
+
+  # Special character to move the cursor up one line
   backline = '\033[F'
 
   nlines = len(message) // cols + 1
@@ -579,6 +585,8 @@ def dumpConfig(params):
   None
 
   """
+
+  ## TODO set to global variable
   paramsFilename = '.gitmess'
   gitRootDirectory = subprocess.run(['git', 'rev-parse',  '--show-toplevel'],
                                     capture_output=True, check=True,

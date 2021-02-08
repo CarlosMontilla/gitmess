@@ -698,12 +698,12 @@ def getParametersFilename():
     Full parameters file path
 
   """
-  basename = ".gitmess"
+  basename = '.gitmess'
   rootDirectory = subprocess.run(['git', 'rev-parse', '--show-toplevel'],
                                  capture_output=True, check=True
                                 ).stdout.decode('utf-8').rstrip('\n')
 
-  return rootDirectory + "/" + basename
+  return rootDirectory + '/' + basename
 
 ## Main
 if __name__ == '__main__':

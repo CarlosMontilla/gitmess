@@ -194,7 +194,7 @@ def readParameters():
                  ('perf', "Code change that improves performance"),
                  ('test', "Adding tests"),
                  ('release', "Release version")]
-
+  params = {}
   params['UseDefaultMenu'] = 'yes'
   params['MaxLength'] = 70
   params['WrapLength'] = 80
@@ -219,22 +219,35 @@ def readParameters():
         key = line.strip('\n')
         value = ''
 
+
+      # Try to parse to an integer. If it is not an int, then convert the
+      # string to lower case
+      try:
+        value = int(value)
+      except ValueError:
+        value = value.lower()
+
       if key == 'AddType':
         (commitType, description) = value.split(' ', maxsplit=1)
-        paramsFile[key].append((commitType, description))
+        params['userTypes'].append((commitType, description))
       else:
-        paramsFile[key] = value
-
-  params = {}
-  params['menu'] = []
-
-  if ('UseDefaultMenu' in paramsFile) and \
-     (paramsFile['UseDefaultMenu'] == 'yes') or \
-     ('UseDefaultMenu' not in paramsFile):
+        params[key] = value
 
 
-  params['menu'].extend(paramsFile['AddType'])
+  # Build commit types based on default values (if required)
+  if params['UseDefaultMenu'] == 'yes':
+    params['menu'] = defaultMenu
+  elif params['UseDefaultMenu'] == 'no':
+    params['menu'] = []
+  else:
+    types2keep = params['UseDefaultMenu'].split(' ')
+    params['menu'] = [entry for entry in defaultMenu if entry[0] in types2keep]
 
+  # Extend commit types with user defined types
+  params['menu'].extend(params['userTypes'])
+
+  # If negative entry for SpellcheckMaxOptions, then set to a very large number
+  # this will display all the options found by the spell checker
   if params['SpellcheckMaxOptions'] < 1:
     params['SpellcheckMaxOptions'] = sys.maxsize
 

@@ -26,7 +26,7 @@ def main(args):
     dumpConfig(parameters)
     return
 
-  if not somethingToCommit():
+  if not somethingToCommit() and not args.dry:
     print("There is nothing staged to commit")
     return
 
@@ -140,8 +140,10 @@ def main(args):
     else:
       readyToCommit = True
 
-
-  commit(commitMessage, parameters)
+  if not args.dry:
+    commit(commitMessage, parameters)
+  else:
+    print('Dry run: Nothing was committed into repository')
 
   return
 
@@ -709,4 +711,5 @@ def getParametersFilename():
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--config', action='store_true', default=False)
+  parser.add_argument('--dry', action='store_true', default=False)
   main(parser.parse_args())

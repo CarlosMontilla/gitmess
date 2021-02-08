@@ -165,10 +165,9 @@ def somethingToCommit():
 
 def readParameters():
   """
-
   Read the parameters configuration file in current project
 
-  This function will read the .gitmess file located in the root folder of the
+  This function will read the parameters file located in the root folder of the
   git project and use it to set up the commit message style.
 
   If not file is presented then default values are used
@@ -184,12 +183,7 @@ def readParameters():
 
   """
 
-  paramsFilename = '.gitmess'
-  gitRootDirectory = subprocess.run(['git', 'rev-parse',  '--show-toplevel'],
-                                    capture_output=True, check=True,
-                                    ).stdout.decode('utf-8').rstrip('\n')
-
-  paramsFullPath = gitRootDirectory + '/' + paramsFilename
+  parametersFile = getParametersFilename()
 
   defaultMenu = [('feat', "New feature"),
                  ('fix', "Bug fix"),
@@ -214,10 +208,9 @@ def readParameters():
   params['userTypes'] = []
 
 
-  # Dictionary that holds the configuration specified in configuration file
-  if os.path.isfile(paramsFullPath):
+  if os.path.isfile(parametersFile):
 
-    paramsfid = open(paramsFullPath, 'r')
+    paramsfid = open(parametersFile, 'r')
 
     for line in paramsfid:
       try:
@@ -585,15 +578,10 @@ def dumpConfig(params):
 
   """
 
-  ## TODO set to global variable
-  paramsFilename = '.gitmess'
-  gitRootDirectory = subprocess.run(['git', 'rev-parse',  '--show-toplevel'],
-                                    capture_output=True, check=True,
-                                    ).stdout.decode('utf-8').rstrip('\n')
+  parametersFile = getParametersFilename()
 
-  filepath = gitRootDirectory + '/' + paramsFilename
-  if not os.path.isfile(filepath):
-    with open(filepath, 'w+') as fid:
+  if not os.path.isfile(parametersFile):
+    with open(parametersFile, 'w+') as fid:
       for (key, value) in params._asdict().items():
         if key != 'menu':
           print(key + ' ' + str(value), file=fid)
@@ -687,6 +675,22 @@ def spellcheck(message, params):
 
   return message
 
+def getParametersFilename():
+  """
+  Returns the full path filename for the parameters file
+
+  Returns
+  -------
+  str
+    Full parameters file path
+
+  """
+  basename = ".gitmess"
+  rootDirectory = subprocess.run(['git', 'rev-parse', '--show-toplevel'],
+                                 capture_output=True, check=True
+                                ).stdout.decode('utf-8').rstrip('\n')
+
+  return rootDirectory + "/" + basename
 
 ## Main
 if __name__ == '__main__':

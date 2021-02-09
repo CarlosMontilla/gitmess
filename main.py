@@ -635,14 +635,12 @@ def spellcheck(message, params):
     'portuguese': 'pt'
   }
 
-  #spell = spellchecker.SpellChecker(language=langDict[params.SpellcheckLanguage.lower()])
   spell = spellchecker.Speller('lang', langDict[params.SpellcheckLanguage.lower()])
 
   ## Remove punctuation from text
   noPunctuation = message.translate(str.maketrans('', '', string.punctuation))
 
   ## Remove any empty string that might appear in the list
-  #wrongWords = list(spell.unknown(noPunctuation.split(' ')))
   wrongWords = [w for w in noPunctuation.split(' ') if w not in spell]
   print(wrongWords)
 

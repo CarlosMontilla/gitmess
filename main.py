@@ -165,6 +165,7 @@ def somethingToCommit():
   return subprocess.run(['git', 'diff', '--cached', '--quiet'],
                         check=False).returncode == 1
 
+
 def readParameters():
   """
   Read the parameters configuration file in current project
@@ -363,7 +364,6 @@ def buildCommitMessage(title, description, issue, breaking, params):
   return message
 
 
-
 def getChar():
   """
 
@@ -390,7 +390,6 @@ def getChar():
   finally:
     termios.tcsetattr(fileDescriptor, termios.TCSADRAIN, oldSettings)
   return char
-
 
 
 def getInput(prefix='', length=80, blankChar='_', inputText=''):
@@ -559,6 +558,7 @@ def printMessageWrapped(message, cursorPos):
 
   return (nlines, cursorLine)
 
+
 def commit(message, params):
   """
   Runs git to commit staged files with a given message
@@ -577,6 +577,7 @@ def commit(message, params):
   """
 
   subprocess.run(['git', 'commit', '--message', message], check=True)
+
 
 def dumpConfig(params):
   """
@@ -602,6 +603,7 @@ def dumpConfig(params):
           print(key + ' ' + str(value), file=fid)
   else:
     print("Configuration file already exists")
+
 
 def spellcheck(message, params):
   """
@@ -690,6 +692,7 @@ def spellcheck(message, params):
 
   return message
 
+
 def getParametersFilename():
   """
   Returns the full path filename for the parameters file
@@ -706,6 +709,7 @@ def getParametersFilename():
                                 ).stdout.decode('utf-8').rstrip('\n')
 
   return rootDirectory + '/' + basename
+
 
 ## Main
 if __name__ == '__main__':

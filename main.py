@@ -16,6 +16,7 @@ import os
 import re
 import string
 import inquirer
+import termcolor
 
 try:
   import aspell as spellchecker
@@ -638,6 +639,8 @@ def spellcheck(message, params):
     'portuguese': 'pt'
   }
 
+  context = 3
+
   spell = spellchecker.Speller('lang', langDict[params.SpellcheckLanguage.lower()])
 
   ## Remove punctuation from text
@@ -646,16 +649,25 @@ def spellcheck(message, params):
   ## Remove any empty string that might appear in the list
   wrongWords = [w for w in noPunctuation.split(' ') if w not in spell]
 
-  for word in wrongWords:
+  correctedMessage = []
+  messageSplit = message.split(' ')
 
-    corrected = False
+  for idx, messageWord in enumerate(messageSplit):
+
+    word = messageWord.translate(str.maketrans('', '', string.punctuation))
+
+    corrected = spell.check(word)
     userInput = ""
     userWord = ""
     originalWord = word
+    correctedWord = word
 
     while not corrected:
 
-      print("-> Word not found in dictionary: " + word)
+      previousWords, nextWords = getContext(messageSplit, idx, context)
+
+      print("-> Word not found in dictionary: " + ' '.join(previousWords) + \
+            ' ' + termcolor.colored(word, 'red') + messageWord[len(word):] + ' ' + ' '.join(nextWords))
       print("Possible candidates are: ")
 
       listCandidates = list(spell.suggest(word))
@@ -692,24 +704,26 @@ def spellcheck(message, params):
         if idx > 0:
           newWord = listCandidates[idx-1]
           wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
-          message = wrongReg.sub(newWord, message)
+          correctedWord = wrongReg.sub(newWord, messageWord)
         if idx == -2:
           spell.addtoPersonal(word)
           spell.saveAllwords()
           wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
-          message = wrongReg.sub(word, message)
+          correctedWord = wrongReg.sub(word, messageWord)
 
         corrected = True
       except ValueError:
         if spell.check(userInput):
           wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
-          message = wrongReg.sub(userInput, message)
+          correctedWord = wrongReg.sub(userInput, messageWord)
           corrected = True
         else:
           newCandidates = spell.suggest(userInput)
           word = userInput.rstrip('\n')
 
-  return message
+    correctedMessage.append(correctedWord)
+
+  return ' '.join(correctedMessage)
 
 
 def getParametersFilename():
@@ -729,6 +743,27 @@ def getParametersFilename():
 
   return rootDirectory + '/' + basename
 
+
+def getContext(message, idx, context):
+  previousWords = []
+  nextWords = []
+
+  startIdx = idx - context;
+  endIdx = idx + context + 1;
+
+  if startIdx < 0:
+    startIdx = 0
+
+  if endIdx > len(message):
+    endIdx = len(message)
+
+  for jdx in range(startIdx, endIdx):
+    if jdx < idx:
+      previousWords.append(message[jdx])
+    elif jdx > idx:
+      nextWords.append(message[jdx])
+
+  return previousWords, nextWords
 
 ## Main
 if __name__ == '__main__':

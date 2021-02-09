@@ -15,7 +15,7 @@ import string
 import inquirer
 
 try:
-  import spellchecker
+  import aspell as spellchecker
 except ModuleNotFoundError:
   spellchecker = None
 
@@ -635,14 +635,16 @@ def spellcheck(message, params):
     'portuguese': 'pt'
   }
 
-  spell = spellchecker.SpellChecker(language=langDict[params.SpellcheckLanguage.lower()])
+  #spell = spellchecker.SpellChecker(language=langDict[params.SpellcheckLanguage.lower()])
+  spell = spellchecker.Speller('lang', langDict[params.SpellcheckLanguage.lower()])
 
   ## Remove punctuation from text
   noPunctuation = message.translate(str.maketrans('', '', string.punctuation))
 
   ## Remove any empty string that might appear in the list
-  wrongWords = list(spell.unknown(noPunctuation.split(' ')))
-  wrongWords = [words for words in wrongWords if words]
+  #wrongWords = list(spell.unknown(noPunctuation.split(' ')))
+  wrongWords = [w for w in noPunctuation.split(' ') if w not in spell]
+  print(wrongWords)
 
   for word in wrongWords:
 
@@ -656,7 +658,7 @@ def spellcheck(message, params):
       print("-> Word not found in dictionary: " + word)
       print("Possible candidates are: ")
 
-      listCandidates = list(spell.candidates(word))
+      listCandidates = list(spell.suggest(word))
       listCandidates = listCandidates[:params.SpellcheckMaxOptions]
       listCandidates = [candidate for candidate in listCandidates if candidate != word]
 
@@ -667,8 +669,7 @@ def spellcheck(message, params):
       for idx, candidate in enumerate(listCandidates):
         print('\t' + str(idx+1) + ': ' + candidate, end='')
         if userWord and idx == 0:
-          print()
-          print(" (your last input)")
+          print(" (your last input)",end='')
         print()
 
       if len(listCandidates) == 0:
@@ -691,13 +692,13 @@ def spellcheck(message, params):
           message = wrongReg.sub(newWord, message)
         corrected = True
       except ValueError:
-        newCandidates = spell.unknown([userInput])
-        if not newCandidates:
+        if spell.check(userInput):
           wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
           message = wrongReg.sub(userInput, message)
           corrected = True
         else:
-          word = userInput
+          newCandidates = spell.suggest(userInput)
+          word = userInput.rstrip('\n')
 
   return message
 

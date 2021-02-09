@@ -207,6 +207,7 @@ def readParameters():
   params['TypesStyle'] = 'comma'
   params['Spellcheck'] = 'yes'
   params['SpellcheckMaxOptions'] = 10
+  params['SpellcheckLanguage'] = 'English'
   params['ScopeLength'] = 20
   params['userTypes'] = []
 

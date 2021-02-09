@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import warnings
+warnings.filterwarnings("ignore")
+
 from collections import namedtuple
 import time
 import termios
@@ -642,7 +645,6 @@ def spellcheck(message, params):
 
   ## Remove any empty string that might appear in the list
   wrongWords = [w for w in noPunctuation.split(' ') if w not in spell]
-  print(wrongWords)
 
   for word in wrongWords:
 
@@ -675,8 +677,11 @@ def spellcheck(message, params):
 
       print()
       userInput = input("Select word or write a different word \n" + \
-                        "(type -1 to keep the original word: " + originalWord + ")\n-> ")
+                        "(type -1 to keep the original word: " + originalWord + ")\n" + \
+                        "(type -2 to add " + word + " to personal dictionary)\n-> ")
 
+      if not userInput:
+        continue
       try:
         idx = int(userInput)
         if idx > len(listCandidates):
@@ -688,6 +693,12 @@ def spellcheck(message, params):
           newWord = listCandidates[idx-1]
           wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
           message = wrongReg.sub(newWord, message)
+        if idx == -2:
+          spell.addtoPersonal(word)
+          spell.saveAllwords()
+          wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
+          message = wrongReg.sub(word, message)
+
         corrected = True
       except ValueError:
         if spell.check(userInput):

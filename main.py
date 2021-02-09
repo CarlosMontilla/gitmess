@@ -627,7 +627,15 @@ def spellcheck(message, params):
 
   """
 
-  spell = spellchecker.SpellChecker()
+  langDict = {
+    'english': 'en',
+    'spanish': 'es',
+    'deutch': 'de',
+    'french': 'fr',
+    'portuguese': 'pt'
+  }
+
+  spell = spellchecker.SpellChecker(language=langDict[params.SpellcheckLanguage.lower()])
 
   ## Remove punctuation from text
   noPunctuation = message.translate(str.maketrans('', '', string.punctuation))

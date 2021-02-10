@@ -689,86 +689,83 @@ def spellcheck(message, params):
 
   spell = spellchecker.Speller('lang', langDict[params.SpellcheckLanguage.lower()])
 
-  ## Remove punctuation from text
-  noPunctuation = message.translate(str.maketrans('', '', string.punctuation))
-
-  ## Remove any empty string that might appear in the list
-  wrongWords = [w for w in noPunctuation.split(' ') if w not in spell]
-
   correctedMessage = []
-  messageSplit = message.split(' ')
 
-  for idx, messageWord in enumerate(messageSplit):
+  for line in message.split('\n'):
 
-    word = messageWord.translate(str.maketrans('', '', string.punctuation))
+    correctedLine = []
+    lineSplit = line.split(' ')
 
-    corrected = spell.check(word)
-    userInput = ""
-    userWord = ""
-    originalWord = word
-    correctedWord = word
+    for idx, messageWord in enumerate(lineSplit):
 
-    while not corrected:
+      word = messageWord.translate(str.maketrans('', '', string.punctuation))
 
-      previousWords, nextWords = getContext(messageSplit, idx, context)
+      corrected = spell.check(word)
+      userInput = ""
+      userWord = ""
+      originalWord = word
+      correctedWord = word
 
-      print("-> Word not found in dictionary: " + ' '.join(previousWords) + \
-            ' ' + termcolor.colored(word, 'red') + messageWord[len(word):] + ' ' + ' '.join(nextWords))
-      print("Possible candidates are: ")
+      while not corrected:
 
-      listCandidates = list(spell.suggest(word))
-      listCandidates = listCandidates[:params.SpellcheckMaxOptions]
-      listCandidates = [candidate for candidate in listCandidates if candidate != word]
+        previousWords, nextWords = getContext(lineSplit, idx, context)
 
-      if userInput:
-        userWord = userInput
-        listCandidates = [userWord] + listCandidates
+        print("-> Word not found in dictionary: " + ' '.join(previousWords) + \
+              ' ' + termcolor.colored(word, 'red') + messageWord[len(word):] + ' ' + ' '.join(nextWords))
+        print("Possible candidates are: ")
 
-      for idx, candidate in enumerate(listCandidates):
-        print('\t' + str(idx+1) + ': ' + candidate, end='')
-        if userWord and idx == 0:
-          print(" (your last input)",end='')
+        listCandidates = list(spell.suggest(word))
+        listCandidates = listCandidates[:params.SpellcheckMaxOptions]
+        listCandidates = [candidate for candidate in listCandidates if candidate != word]
+
+        if userInput:
+          userWord = userInput
+          listCandidates = [userWord] + listCandidates
+
+        for idx, candidate in enumerate(listCandidates):
+          print('\t' + str(idx+1) + ': ' + candidate, end='')
+          if userWord and idx == 0:
+            print(" (your last input)",end='')
+          print()
+
+        if len(listCandidates) == 0:
+          print("\tNo suitable option was found")
+
         print()
+        userInput = input("Select word or write a different word \n" + \
+                          "(type -1 to keep the original word: " + originalWord + ")\n" + \
+                          "(type -2 to add " + word + " to personal dictionary)\n-> ")
 
-      if len(listCandidates) == 0:
-        print("\tNo suitable option was found")
-
-      print()
-      userInput = input("Select word or write a different word \n" + \
-                        "(type -1 to keep the original word: " + originalWord + ")\n" + \
-                        "(type -2 to add " + word + " to personal dictionary)\n-> ")
-
-      if not userInput:
-        continue
-      try:
-        idx = int(userInput)
-        if idx > len(listCandidates):
-          print("Please insert a number between 1 and " + str(len(listCandidates)))
-          userInput = ""
-          input("Press ENTER to continue")
+        if not userInput:
           continue
-        if idx > 0:
-          newWord = listCandidates[idx-1]
-          wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
-          correctedWord = wrongReg.sub(newWord, messageWord)
-        if idx == -2:
-          spell.addtoPersonal(word)
-          spell.saveAllwords()
-          wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
-          correctedWord = wrongReg.sub(word, messageWord)
-
-        corrected = True
-      except ValueError:
-        if spell.check(userInput):
-          wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
-          correctedWord = wrongReg.sub(userInput, messageWord)
+        try:
+          idx = int(userInput)
+          if idx > len(listCandidates):
+            print("Please insert a number between 1 and " + str(len(listCandidates)))
+            userInput = ""
+            input("Press ENTER to continue")
+            continue
+          elif idx > 0:
+            newWord = listCandidates[idx-1]
+            wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
+            correctedWord = wrongReg.sub(newWord, messageWord)
+          elif idx == -2:
+            spell.addtoPersonal(word)
+            spell.saveAllwords()
+            wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
+            correctedWord = wrongReg.sub(word, messageWord)
           corrected = True
-        else:
-          newCandidates = spell.suggest(userInput)
-          word = userInput.rstrip('\n')
+        except ValueError:
+          if spell.check(userInput):
+            wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
+            correctedWord = wrongReg.sub(userInput, messageWord)
+            corrected = True
+          else:
+            newCandidates = spell.suggest(userInput)
+            word = userInput.rstrip('\n')
 
-    correctedMessage.append(correctedWord)
-
+      correctedLine.append(correctedWord)
+    correctedMessage.append(' '.join(correctedLine))
   return ' '.join(correctedMessage)
 
 

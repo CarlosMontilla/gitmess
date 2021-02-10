@@ -689,7 +689,7 @@ def spellcheck(message, params):
     correctedLine = []
     lineSplit = re.findall(r"\w+|[^\w]+", line, re.UNICODE)
 
-    for idx, word in enumerate(lineSplit):
+    for jdx, word in enumerate(lineSplit):
 
       if re.match('\w+', word):
         corrected = spell.check(word)
@@ -703,7 +703,7 @@ def spellcheck(message, params):
 
       while not corrected:
 
-        previousWords, nextWords = getContext(lineSplit, idx, context)
+        previousWords, nextWords = getContext(lineSplit, jdx, context)
 
         print("-> Word not found in dictionary: " + ''.join(previousWords) + \
               termcolor.colored(word, 'red')  + ''.join(nextWords))

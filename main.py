@@ -686,13 +686,15 @@ def spellcheck(message, params):
   for line in message.split('\n'):
 
     correctedLine = []
-    lineSplit = line.split(' ')
+    lineSplit = re.findall(r"\w+|[^\w]+", line, re.UNICODE)
 
-    for idx, messageWord in enumerate(lineSplit):
+    for idx, word in enumerate(lineSplit):
 
-      word = messageWord.translate(str.maketrans('', '', string.punctuation))
+      if re.match('\w+', word):
+        corrected = spell.check(word)
+      else:
+        corrected = True
 
-      corrected = spell.check(word)
       userInput = ""
       userWord = ""
       originalWord = word
@@ -702,8 +704,8 @@ def spellcheck(message, params):
 
         previousWords, nextWords = getContext(lineSplit, idx, context)
 
-        print("-> Word not found in dictionary: " + ' '.join(previousWords) + \
-              ' ' + termcolor.colored(word, 'red') + messageWord[len(word):] + ' ' + ' '.join(nextWords))
+        print("-> Word not found in dictionary: " + ''.join(previousWords) + \
+              termcolor.colored(word, 'red')  + ''.join(nextWords))
         print("Possible candidates are: ")
 
         listCandidates = list(spell.suggest(word))
@@ -740,24 +742,24 @@ def spellcheck(message, params):
           elif idx > 0:
             newWord = listCandidates[idx-1]
             wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
-            correctedWord = wrongReg.sub(newWord, messageWord)
+            correctedWord = wrongReg.sub(newWord, originalWord)
           elif idx == -2:
             spell.addtoPersonal(word)
             spell.saveAllwords()
             wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
-            correctedWord = wrongReg.sub(word, messageWord)
+            correctedWord = wrongReg.sub(word, originalWord)
           corrected = True
         except ValueError:
           if spell.check(userInput):
             wrongReg = re.compile(re.escape(originalWord), re.IGNORECASE)
-            correctedWord = wrongReg.sub(userInput, messageWord)
+            correctedWord = wrongReg.sub(userInput, originalWord)
             corrected = True
           else:
             newCandidates = spell.suggest(userInput)
             word = userInput.rstrip('\n')
 
       correctedLine.append(correctedWord)
-    correctedMessage.append(' '.join(correctedLine))
+    correctedMessage.append(''.join(correctedLine))
   return '\n'.join(correctedMessage)
 
 

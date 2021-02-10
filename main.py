@@ -79,7 +79,8 @@ def main(args):
     description = getInput(description[0],
                            length=sys.maxsize,
                            blankChar='',
-                           inputText=description[1])
+                           inputText=description[1],
+                           allowNewlines=True)
 
     issueCode = getInput(issueCode[0],
                          length=sys.maxsize,
@@ -397,7 +398,7 @@ def getChar():
   return char
 
 
-def getInput(prefix='', length=80, blankChar='_', inputText=''):
+def getInput(prefix='', length=80, blankChar='_', inputText='', allowNewlines=False):
   """
   Builds an input system that checks that the length of the input is smaller
   than some value.
@@ -422,6 +423,8 @@ def getInput(prefix='', length=80, blankChar='_', inputText=''):
     Character to be used as a placeholder for the empty characters in the message (Default='_')
   inputText: str, optional
     Predefined text to be used in the editable section of the user prompt (Default='')
+  allowNewlines: bool, optional
+    Allow the user to manually break lines
 
   Returns
   -------
@@ -486,7 +489,7 @@ def getInput(prefix='', length=80, blankChar='_', inputText=''):
       raise KeyboardInterrupt
     elif len(userInput) + lenPrefix == length: ## If already at the end, don't do anything
       continue
-    elif ord(char) == 14:
+    elif ord(char) == 14 and allowNewlines:
       cursorPosWord = cursorPos - lenPrefix
       userInput = userInput[:cursorPosWord] + '\n' + userInput[cursorPosWord:]
       cursorPos += 1

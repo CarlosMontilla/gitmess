@@ -40,10 +40,10 @@ def main(args):
 
   readyToCommit = False
   title = ["", ""]
-  description = ["Description", ""]
-  scope = ["Scope", ""]
-  issueCode = ["Issue Code", ""]
-  breakingChange = ["BREAKING CHANGES", ""]
+  description = ["Description: ", ""]
+  scope = ["Scope: ", ""]
+  issueCode = ["Issue Code: ", ""]
+  breakingChange = ["BREAKING CHANGES: ", ""]
   types = []
 
   while not readyToCommit:
@@ -70,6 +70,8 @@ def main(args):
       titlePrefix = typesPrefix + "(" + scope[1] + ")"
     else:
       titlePrefix = typesPrefix
+
+    titlePrefix += ": "
 
     title = getInput(prefix=titlePrefix,
                      length=parameters.MaxLength,
@@ -406,7 +408,7 @@ def getInput(prefix='', length=80, blankChar='_', inputText='', allowNewlines=Fa
 
   This function shows the user a prompt line where he/she can type a message,
   but imposing a maximum number of characters. The message is composed of one
-  non-editable string (prefix + ': ') and one editable part where the user
+  non-editable string (prefix) and one editable part where the user
   writes the input. The sum of the length of both string restricted to be less
   or equal than the parameter 'length'
 
@@ -431,7 +433,7 @@ def getInput(prefix='', length=80, blankChar='_', inputText='', allowNewlines=Fa
   -------
   tuple
     A tuple of 2 strings:
-      1. The non editable part (prefix + ': ')
+      1. The non editable part (prefix)
       2. The editable part typed by the user
     The length of the string is equal or less than 'length' parameter
 
@@ -444,7 +446,6 @@ def getInput(prefix='', length=80, blankChar='_', inputText='', allowNewlines=Fa
   ## TODO Set to global variable
   backline='\033[F'
 
-  prefix += ': '
   lenPrefix = len(prefix)
 
   cursorPos = lenPrefix

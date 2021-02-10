@@ -543,8 +543,6 @@ def printMessageWrapped(message, cursorPos):
   terminalSize = shutil.get_terminal_size()
   margin = 5
   cols = terminalSize.columns - margin
-  ## TODO Delete
-  cols = 40
 
   # Special character to move the cursor up one line
   backline = '\033[F'
@@ -556,6 +554,7 @@ def printMessageWrapped(message, cursorPos):
   linesTotal = []
   linesBeforeCursor = []
   userBreak = 0
+  justNewline = False
   for line in userLines:
     # Break the message into lines
     if line:
@@ -569,26 +568,47 @@ def printMessageWrapped(message, cursorPos):
       charsBefore = sum(list(map(len, linesBeforeCursor)))
       invisible = userBreak
 
-
       remainingChars = cursorPos - charsBefore - invisible
-
       if len(l) < remainingChars:
         linesBeforeCursor.append(l)
         if l == breakLines[-1]:
           userBreak += 1
-      elif remainingChars == 0:
+          justNewline = True
+        #print("1.", [linesBeforeCursor[-1]])
+      elif remainingChars <= 0:
         pass
-      #elif remainingChars < 0:
-      #  raise RuntimeError("Something weird happened")
+      elif (remainingChars == len(l) and remainingChars > 0 and len(linesBeforeCursor) > 0 and linesBeforeCursor[-1] != ''):
+        linesBeforeCursor.append(l)
+        justNewline = False
+        #print("2.", [linesBeforeCursor[-1]])
+        #linesBeforeCursor.append('')
       else:
         linesBeforeCursor.append(l[:remainingChars])
+        justNewline = False
+        #print("3.", [linesBeforeCursor[-1]])
+
+      # print()
+      # print(linesBeforeCursor)
+      # print(list(map(len,linesBeforeCursor)))
+      # print(sum(list(map(len,linesBeforeCursor))))
+      # print(cursorPos)
+      # print(charsBefore)
+      # print(remainingChars)
+      # print(justNewline)
+      # print()
+      # input()
 
 
   if len(linesBeforeCursor) == userBreak:
+    None
+    #linesBeforeCursor.append('')
+  if justNewline:
+    #print("hola")
     linesBeforeCursor.append('')
 
   #print(cursorPos)
   #print(invisible)
+  #print(remainingChars)
   #print(linesTotal)
   #print(linesBeforeCursor)
   nlines = len(linesTotal)

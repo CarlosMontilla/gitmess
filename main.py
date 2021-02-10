@@ -502,9 +502,7 @@ def getInput(prefix='', length=80, blankChar='_', inputText=''):
     messageLine = prefix + userInput + (length - len(userInput) - lenPrefix) * blankChar
 
     # Clean any old input before writing new line
-    if len(messageLine) > maxLengthMessage:
-      maxLengthMessage = len(messageLine)
-    printMessageWrapped(' '*maxLengthMessage, 0)
+    cleanTerminal(nlines)
 
     # Print the user input in a formatted way
     (nlines, cursorLine) = printMessageWrapped(messageLine, cursorPos)
@@ -541,6 +539,7 @@ def printMessageWrapped(message, cursorPos):
   terminalSize = shutil.get_terminal_size()
   margin = 5
   cols = terminalSize.columns - margin
+  ## TODO Delete
   cols = 40
 
   # Special character to move the cursor up one line
@@ -808,6 +807,19 @@ def getContext(message, idx, context):
       nextWords.append(message[jdx])
 
   return previousWords, nextWords
+
+def cleanTerminal(nlines):
+  terminalSize = shutil.get_terminal_size()
+  margin = 1
+  cols = terminalSize.columns - margin
+
+  # Special character to move the cursor up one line
+  backline = '\033[F'
+
+  print('\n'.join([' '*cols]*nlines), end='')
+  print('\r',end='')
+  print(backline*(nlines-1), end='',flush=True)
+
 
 ## Main
 if __name__ == '__main__':

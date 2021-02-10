@@ -803,6 +803,7 @@ def getContext(message, idx, context):
 
   return previousWords, nextWords
 
+
 def cleanTerminal(nlines):
   terminalSize = shutil.get_terminal_size()
   margin = 1

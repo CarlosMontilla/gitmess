@@ -359,8 +359,9 @@ def buildCommitMessage(title, description, issue, breaking, params):
   message = title[0] + title[1]
 
   if description[1]:
-    message += '\n\n' +  '\n'.join(textwrap.wrap(description[1],
-                                                 width=params.WrapLength))
+    linesWrapped = list(map(lambda l: '\n'.join(textwrap.wrap(l, width=params.WrapLength)),
+                            description[1].split('\n')))
+    message += '\n\n' +  '\n'.join(linesWrapped)
   if issue[1]:
     message += '\n\n' + issue[0] + ': ' + issue[1]
 
@@ -766,7 +767,7 @@ def spellcheck(message, params):
 
       correctedLine.append(correctedWord)
     correctedMessage.append(' '.join(correctedLine))
-  return ' '.join(correctedMessage)
+  return '\n'.join(correctedMessage)
 
 
 def getParametersFilename():

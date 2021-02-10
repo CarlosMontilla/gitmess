@@ -819,6 +819,11 @@ def cleanTerminal(nlines):
 ## Main
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--config', action='store_true', default=False)
-  parser.add_argument('--dry', action='store_true', default=False)
+
+  parser.add_argument('--config', action='store_true', default=False,
+                      help="Create a default configuration file")
+
+  parser.add_argument('--dry', action='store_true', default=False,
+                      help="Do a dry run, but not commit anything")
+
   main(parser.parse_args())

@@ -556,6 +556,7 @@ def printMessageWrapped(message, cursorPos):
   userBreak = 0
   justNewline = False
   for line in userLines:
+
     # Break the message into lines
     if line:
       breakLines = [line[idx*cols:(idx+1)*cols] for idx in range(len(line)//cols + 1)]
@@ -574,45 +575,21 @@ def printMessageWrapped(message, cursorPos):
         if l == breakLines[-1]:
           userBreak += 1
           justNewline = True
-        #print("1.", [linesBeforeCursor[-1]])
       elif remainingChars <= 0:
         pass
       elif (remainingChars == len(l) and remainingChars > 0 and len(linesBeforeCursor) > 0 and linesBeforeCursor[-1] != ''):
         linesBeforeCursor.append(l)
         justNewline = False
-        #print("2.", [linesBeforeCursor[-1]])
-        #linesBeforeCursor.append('')
       else:
         linesBeforeCursor.append(l[:remainingChars])
         justNewline = False
-        #print("3.", [linesBeforeCursor[-1]])
 
-      # print()
-      # print(linesBeforeCursor)
-      # print(list(map(len,linesBeforeCursor)))
-      # print(sum(list(map(len,linesBeforeCursor))))
-      # print(cursorPos)
-      # print(charsBefore)
-      # print(remainingChars)
-      # print(justNewline)
-      # print()
-      # input()
-
-
-  if len(linesBeforeCursor) == userBreak:
-    None
-    #linesBeforeCursor.append('')
   if justNewline:
-    #print("hola")
     linesBeforeCursor.append('')
 
-  #print(cursorPos)
-  #print(invisible)
-  #print(remainingChars)
-  #print(linesTotal)
-  #print(linesBeforeCursor)
   nlines = len(linesTotal)
   cursorLine = len(linesBeforeCursor) - 1
+
   # First print the entire message
   print('\n'.join([l+' ' for l in linesTotal]), end='')
 
@@ -621,12 +598,6 @@ def printMessageWrapped(message, cursorPos):
 
   #print until cursor
   print('\n'.join(linesBeforeCursor), end='', flush=True)
-
-  try:
-    if linesTotal[cursorLine] == linesBeforeCursor[-1] and linesTotal[cursorLine+1] == ' ':
-      print('\r', end='', flush=True)
-  except IndexError:
-    pass
 
   return (nlines, cursorLine)
 

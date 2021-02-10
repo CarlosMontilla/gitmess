@@ -486,6 +486,10 @@ def getInput(prefix='', length=80, blankChar='_', inputText=''):
       raise KeyboardInterrupt
     elif len(userInput) + lenPrefix == length: ## If already at the end, don't do anything
       continue
+    elif ord(char) == 14:
+      cursorPosWord = cursorPos - lenPrefix
+      userInput = userInput[:cursorPosWord] + '\n' + userInput[cursorPosWord:]
+      cursorPos += 1
     elif ord(char) >= 32: #Write only letters numbers and symbols
       cursorPosWord = cursorPos - lenPrefix
       userInput = userInput[:cursorPosWord] + char + userInput[cursorPosWord:]
@@ -537,29 +541,69 @@ def printMessageWrapped(message, cursorPos):
   terminalSize = shutil.get_terminal_size()
   margin = 5
   cols = terminalSize.columns - margin
+  cols = 40
 
   # Special character to move the cursor up one line
   backline = '\033[F'
 
   nlines = len(message) // cols + 1
-  cursorLine = cursorPos // cols
-  cursorPosLine = cursorPos % cols
+  cursorLine = 0
 
-  # Break the message into lines
-  lines = [message[idx*cols:(idx+1)*cols] for idx in range(nlines)]
+  userLines = message.split('\n')
+  linesTotal = []
+  linesBeforeCursor = []
+  userBreak = 0
+  for line in userLines:
+    # Break the message into lines
+    if line:
+      breakLines = [line[idx*cols:(idx+1)*cols] for idx in range(len(line)//cols + 1)]
+    else:
+      breakLines = ['']
 
+    linesTotal.extend(breakLines)
+
+    for l in breakLines:
+      charsBefore = sum(list(map(len, linesBeforeCursor)))
+      invisible = userBreak
+
+
+      remainingChars = cursorPos - charsBefore - invisible
+
+      if len(l) < remainingChars:
+        linesBeforeCursor.append(l)
+        if l == breakLines[-1]:
+          userBreak += 1
+      elif remainingChars == 0:
+        pass
+      #elif remainingChars < 0:
+      #  raise RuntimeError("Something weird happened")
+      else:
+        linesBeforeCursor.append(l[:remainingChars])
+
+
+  if len(linesBeforeCursor) == userBreak:
+    linesBeforeCursor.append('')
+
+  #print(cursorPos)
+  #print(invisible)
+  #print(linesTotal)
+  #print(linesBeforeCursor)
+  nlines = len(linesTotal)
+  cursorLine = len(linesBeforeCursor) - 1
   # First print the entire message
-  print('\n'.join(lines), end='')
+  print('\n'.join([l+' ' for l in linesTotal]), end='')
 
   #bring back cursor to the beginning of message
   print('\r' + backline*(nlines-1), end='')
 
-  # Print all lines coming before cursor (if there are any)
-  if cursorLine > 0:
-    print('\n'.join(lines[:cursorLine]), end='\n', flush=True)
-
   #print until cursor
-  print(lines[cursorLine][:cursorPosLine], end='', flush=True)
+  print('\n'.join(linesBeforeCursor), end='', flush=True)
+
+  try:
+    if linesTotal[cursorLine] == linesBeforeCursor[-1] and linesTotal[cursorLine+1] == ' ':
+      print('\r', end='', flush=True)
+  except IndexError:
+    pass
 
   return (nlines, cursorLine)
 

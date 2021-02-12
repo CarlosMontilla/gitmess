@@ -30,7 +30,7 @@ def main(args):
     dumpConfig(parameters)
     return
 
-  if not somethingToCommit() and not args.dry:
+  if not somethingToCommit() and not args.dry and not args.tag:
     print("There is nothing staged to commit")
     return
 
@@ -45,15 +45,21 @@ def main(args):
   issueCode = ["Issue Code: ", ""]
   breakingChange = ["BREAKING CHANGES: ", ""]
   types = []
+  tagTitle = ["Tag name: ", ""]
 
   while not readyToCommit:
 
+    if args.tag:
+      tagTitle = getInput(tagTitle[0],
+                          length=(len(tagTitle[0])+parameters.MaxLength),
+                          blankChar=parameters.BlankChar,
+                          inputText=tagTitle[1])
     ## Show menu with commit types
     types = showMenu(parameters, types)
 
     ## Ask for commit scope
     scope = getInput(scope[0],
-                     length=parameters.ScopeLength+7,
+                     length=parameters.ScopeLength+len(scope[0]),
                      blankChar=parameters.BlankChar,
                      inputText=scope[1])
 
@@ -127,6 +133,9 @@ def main(args):
       print("COMMIT MESSAGE")
       print('='*headerLength)
 
+      if args.tag:
+        print('\n' + 'Tag: ' + tagTitle[1])
+
       print('\n' + commitMessage + '\n')
       print('='*headerLength)
 
@@ -148,7 +157,10 @@ def main(args):
       readyToCommit = True
 
   if not args.dry:
-    commit(commitMessage, parameters)
+    if args.tag:
+      tag(tagTitle[1], commitMessage, parameters)
+    else:
+      commit(commitMessage, parameters)
   else:
     print('Dry run: Nothing was committed into repository')
 
@@ -623,6 +635,29 @@ def commit(message, params):
   subprocess.run(['git', 'commit', '--message', message], check=True)
 
 
+def tag(tagTitle, message, params):
+  """
+  Tags the current commit
+
+  Parameters
+  ----------
+  tagTitle: str
+    Tag title label
+  message: str
+    Commit message already formatted
+  params: namedtuple
+    Structure with the commit parameters
+
+  Returns
+  -------
+  None
+
+  """
+
+  subprocess.run(['git', 'tag', '--annotate', tagTitle, '--message', message], check=True)
+
+
+
 def dumpConfig(params):
   """
   Create a configuration file with given parameters
@@ -826,5 +861,8 @@ if __name__ == '__main__':
 
   parser.add_argument('--dry', action='store_true', default=False,
                       help="Do a dry run, but not commit anything")
+
+  parser.add_argument('--tag', action='store_true', default=False,
+                      help="Create a tag")
 
   main(parser.parse_args())

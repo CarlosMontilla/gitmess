@@ -215,6 +215,7 @@ def readParameters():
                  ('style', "Markup, white-space, formatting..."),
                  ('perf', "Code change that improves performance"),
                  ('test', "Adding tests"),
+                 ('merge', 'Merging commits'),
                  ('release', "Release version")]
   params = {}
   params['UseDefaultMenu'] = 'yes'

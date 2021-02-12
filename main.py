@@ -643,7 +643,7 @@ def dumpConfig(params):
   if not os.path.isfile(parametersFile):
     with open(parametersFile, 'w+') as fid:
       for (key, value) in params._asdict().items():
-        if key != 'menu':
+        if key not in ['menu', 'userTypes']:
           print(key + ' ' + str(value), file=fid)
   else:
     print("Configuration file already exists")

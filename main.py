@@ -23,11 +23,17 @@ try:
 except ModuleNotFoundError:
   spellchecker = None
 
+VERSION='0.1.0'
+
 def main(args):
 
   parameters = readParameters()
   if args.config:
     dumpConfig(parameters)
+    return
+
+  if args.version:
+    print("Gitmess version: " + VERSION)
     return
 
   if not somethingToCommit() and not args.dry and not args.tag:
@@ -865,5 +871,8 @@ if __name__ == '__main__':
 
   parser.add_argument('--tag', action='store_true', default=False,
                       help="Create a tag")
+
+  parser.add_argument('--version', action='store_true', default=False,
+                      help="Print version")
 
   main(parser.parse_args())

@@ -23,7 +23,7 @@ try:
 except ModuleNotFoundError:
   spellchecker = None
 
-VERSION='0.1.0'
+VERSION='0.1.1'
 
 def main(args):
 
@@ -61,7 +61,12 @@ def main(args):
                           blankChar=parameters.BlankChar,
                           inputText=tagTitle[1])
     ## Show menu with commit types
-    types = showMenu(parameters, types)
+
+    if args.simple_menus:
+      types = showNumberedMenu(parameters, types)
+    else:
+      types = showMenu(parameters, types)
+
 
     ## Ask for commit scope
     scope = getInput(scope[0],
@@ -145,16 +150,21 @@ def main(args):
       print('\n' + commitMessage + '\n')
       print('='*headerLength)
 
-      shouldCommit = inquirer.prompt(
-        [inquirer.List('confirm',
-                       message="Do you want to commit with the above message?",
-                       choices=['yes', 'edit', 'cancel'],
-                       default='edit'),]
-      )['confirm']
+      if args.simple_menus:
+        shouldCommit = input("Do you want to commit with the above message? [(yes (y)/ edit (e) (default)/ no (n)]: ")
+        if shouldCommit == "":
+          shouldCommit = 'e'
+      else:
+        shouldCommit = inquirer.prompt(
+          [inquirer.List('confirm',
+                         message="Do you want to commit with the above message?",
+                         choices=['yes', 'edit', 'cancel'],
+                         default='edit'),]
+        )['confirm']
 
-      if shouldCommit == 'yes':
+      if shouldCommit == 'yes' or shouldCommit == "y":
         readyToCommit = True
-      elif shouldCommit == 'edit':
+      elif shouldCommit == 'edit' or shouldCommit == 'e':
         shouldCommit == False
       else:
         return
@@ -284,6 +294,46 @@ def readParameters():
   tupleConstructor = namedtuple('params', ' '.join(sorted(params.keys())))
 
   return tupleConstructor(**params)
+
+
+def showNumberedMenu(params, defaults=None):
+  menuQuestions = [ (label + ': ' + text, label)
+                    for (label, text) in params.menu ]
+
+  labels = [label for (label, text) in params.menu]
+
+  defaultIdxs = []
+  for idx, value in enumerate(labels):
+    if value in defaults:
+      defaultIdxs.append(str(idx+1))
+
+  print(defaultIdxs)
+  if len(defaultIdxs) > 0:
+    defaultStr = ','.join(defaultIdxs)
+  else:
+    defaultStr = ""
+
+  menuMessage = "Select the type(s) of change you are committing " + \
+      "(Comma to separate multiple selections; and press ENTER to select)"
+
+  print(menuMessage)
+  for idx,  option in enumerate(menuQuestions):
+    print(str(idx+1) + ". " + option[0], end='\n')
+
+  selected = input("Enter selection (default " + defaultStr + "): ")
+  if selected == "":
+    selected = defaultStr
+
+  selectedIdxs = selected.split(',')
+  selectedIdxs = [int(v)-1 for v in selectedIdxs]
+
+  if len(selectedIdxs) > 1 and params.MultipleTypes == "no":
+    raise RuntimeError("Multiple parameters not allowed")
+
+  choices = [labels[idx] for idx in selectedIdxs]
+
+  return choices
+
 
 
 def showMenu(params, defaults=None):
@@ -874,5 +924,7 @@ if __name__ == '__main__':
 
   parser.add_argument('--version', action='store_true', default=False,
                       help="Print version")
+
+  parser.add_argument('--simple-menus', action='store_true', default=False)
 
   main(parser.parse_args())

@@ -307,7 +307,6 @@ def showNumberedMenu(params, defaults=None):
     if value in defaults:
       defaultIdxs.append(str(idx+1))
 
-  print(defaultIdxs)
   if len(defaultIdxs) > 0:
     defaultStr = ','.join(defaultIdxs)
   else:
